@@ -5,13 +5,12 @@
 ## Usage
 
 ```yml
-Name: Merge Schedule
+name: Merge Schedule
 on:
-  push:
-    pull_request:
-      - types:
-          - opened
-          - edited
+  pull_request:
+    types:
+      - opened
+      - edited
   schedule:
     # https://crontab.guru/every-hour
     - cron: 0 * * * *
