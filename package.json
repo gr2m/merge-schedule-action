@@ -1,0 +1,12 @@
+{
+  "name": "merge-schedule-action",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GitHub Action to merge pull requests on a scheduled day",
+  "repository": "https://github.com/gr2m/merge-schedule-action.git",
+  "keywords": [
+    "github-action"
+  ],
+  "author": "Gregor Martynus (https://twitter.com/gr2m)",
+  "license": "ISC"
+}
