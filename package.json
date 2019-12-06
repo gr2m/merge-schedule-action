@@ -9,8 +9,12 @@
   ],
   "author": "Gregor Martynus (https://twitter.com/gr2m)",
   "license": "ISC",
+  "scripts": {
+    "build": "ncc build index.js -o dist"
+  },
   "devDependencies": {
     "@semantic-release/git": "^7.0.18",
+    "@zeit/ncc": "^0.20.5",
     "semantic-release": "^15.13.31"
   },
   "release": {
