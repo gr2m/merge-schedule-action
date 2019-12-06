@@ -32,5 +32,9 @@
       ],
       "@semantic-release/github"
     ]
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@octokit/action": "^1.2.0"
   }
 }
