@@ -1,5 +1,3 @@
-# 🚧 THIS IS WORK IN PROGRESS! See [#1](https://github.com/gr2m/merge-schedule-action/pull/1)
-
 # merge-schedule-action
 
 > GitHub Action to merge pull requests on a scheduled day
