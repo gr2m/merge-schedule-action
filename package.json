@@ -1,12 +1,32 @@
 {
   "name": "merge-schedule-action",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "GitHub Action to merge pull requests on a scheduled day",
   "repository": "https://github.com/gr2m/merge-schedule-action.git",
   "keywords": [
     "github-action"
   ],
   "author": "Gregor Martynus (https://twitter.com/gr2m)",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@semantic-release/git": "^7.0.18",
+    "semantic-release": "^15.13.31"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "dist/index.js"
+          ],
+          "message": "build(release): compiled action for ${nextRelease.version}\n\n[skip ci]"
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  }
 }
