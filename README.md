@@ -17,16 +17,10 @@ on:
     - cron: 0 * * * *
 
 jobs:
-  set_status:
+  merge_schedule:
     runs-on: ubuntu-latest
-    if: github.event_name === "pull_request"
     steps:
-      - uses: gr2m/merge-schedule-action/set_status@v1.x
-  merge:
-    runs-on: ubuntu-latest
-    if: github.event_name === "schedule"
-    steps:
-      - uses: gr2m/merge-schedule-action/merge@v1.x
+      - uses: gr2m/merge-schedule-action@v1.x
 ```
 
 ## License
