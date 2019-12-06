@@ -1,0 +1,8 @@
+name: Merge Schedule
+description: "merge pull requests on a scheduled day"
+branding:
+  icon: "git-merge"
+  color: purple
+runs:
+  using: "node12"
+  main: "dist/index.js"
