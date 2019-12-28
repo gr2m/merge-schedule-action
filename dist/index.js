@@ -2029,7 +2029,7 @@ async function handleSchedule() {
   }
 
   const duePullRequests = pullRequests.filter(
-    pullRequest => true // new Date(pullRequest.scheduledDate) < new Date()
+    pullRequest => new Date(pullRequest.scheduledDate) < new Date()
   );
 
   core.info(`${duePullRequests.length} due pull requests found`);
