@@ -4,6 +4,8 @@
 
 ## Usage
 
+Create `.github/workflows/merge-schedule.yml`
+
 ```yml
 name: Merge Schedule
 on:
@@ -23,6 +25,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+In your pull requests, add a line to the end of the pull request description look looking like this
+
+```
+/schedule 2019-12-31
+```
+
+To control at which time of the day you want the pull request to be merged, I recommend to adapt the `- cron: ...` setting in the workflow file.
+
+The action sets a pending commit status if the pull request was recognized as being scheduled.
 
 ## License
 
