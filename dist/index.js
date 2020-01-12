@@ -2523,7 +2523,7 @@ async function handlePullRequest() {
   core.info(`Schedule date found: "${datestring}"`);
 
   if (!isValidDate(datestring)) {
-    if (eventPayload.repository.fork) {
+    if (eventPayload.pull_request.head.repo.fork) {
       core.setFailed(`"${datestring}" is not a valid date`);
       process.exit(1);
     }
@@ -2544,7 +2544,7 @@ async function handlePullRequest() {
   }
 
   if (new Date(datestring) < new Date()) {
-    if (eventPayload.repository.fork) {
+    if (eventPayload.pull_request.head.repo.fork) {
       core.setFailed(`"${datestring}" is already in the past`);
       process.exit(1);
     }
@@ -2564,7 +2564,7 @@ async function handlePullRequest() {
     return;
   }
 
-  if (eventPayload.repository.fork) {
+  if (eventPayload.pull_request.head.repo.fork) {
     core.info(`✅ Scheduled to me merged on ${datestring}`);
     process.exit(0);
   }
