@@ -36,6 +36,8 @@ To control at which time of the day you want the pull request to be merged, I re
 
 The action sets a pending commit status if the pull request was recognized as being scheduled.
 
+Note that pull requests from forks are ignored for security reasons.
+
 ## License
 
 [ISC](LICENSE)
