@@ -2012,6 +2012,7 @@ async function handleSchedule() {
     response => {
       return response.data
         .filter(pullRequest => hasScheduleCommand(pullRequest))
+        .filter(pullRequest => isntFromFork(pullRequest))
         .map(pullRequest => {
           return {
             number: pullRequest.number,
@@ -2050,6 +2051,10 @@ async function handleSchedule() {
 
 function hasScheduleCommand(pullRequest) {
   return /(^|\n)\/schedule /.test(pullRequest.body);
+}
+
+function isntFromFork(pullRequest) {
+  return !pullRequest.head.repo.fork;
 }
 
 function getScheduleDateString(text) {
@@ -2514,6 +2519,11 @@ async function handlePullRequest() {
     `Handling pull request ${eventPayload.action} for ${eventPayload.pull_request.html_url}`
   );
 
+  if (eventPayload.pull_request.head.repo.fork) {
+    core.setFailed(`Setting a scheduled merge is not allowed from forks`);
+    process.exit(1);
+  }
+
   if (!hasScheduleCommand(eventPayload.pull_request.body)) {
     core.info(`No /schedule command found`);
     return;
@@ -2523,11 +2533,6 @@ async function handlePullRequest() {
   core.info(`Schedule date found: "${datestring}"`);
 
   if (!isValidDate(datestring)) {
-    if (eventPayload.pull_request.head.repo.fork) {
-      core.setFailed(`"${datestring}" is not a valid date`);
-      process.exit(1);
-    }
-
     const { data } = await octokit.checks.create({
       owner: eventPayload.repository.owner.login,
       repo: eventPayload.repository.name,
@@ -2544,11 +2549,6 @@ async function handlePullRequest() {
   }
 
   if (new Date(datestring) < new Date()) {
-    if (eventPayload.pull_request.head.repo.fork) {
-      core.setFailed(`"${datestring}" is already in the past`);
-      process.exit(1);
-    }
-
     const { data } = await octokit.checks.create({
       owner: eventPayload.repository.owner.login,
       repo: eventPayload.repository.name,
@@ -2562,11 +2562,6 @@ async function handlePullRequest() {
     });
     core.info(`Check run cretaed: ${data.html_url}`);
     return;
-  }
-
-  if (eventPayload.pull_request.head.repo.fork) {
-    core.info(`✅ Scheduled to me merged on ${datestring}`);
-    process.exit(0);
   }
 
   const { data } = await octokit.checks.create({
