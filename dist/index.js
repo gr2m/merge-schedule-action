@@ -2523,6 +2523,11 @@ async function handlePullRequest() {
   core.info(`Schedule date found: "${datestring}"`);
 
   if (!isValidDate(datestring)) {
+    if (eventPayload.repository.fork) {
+      core.setFailed(`"${datestring}" is not a valid date`);
+      process.exit(1);
+    }
+
     const { data } = await octokit.checks.create({
       owner: eventPayload.repository.owner.login,
       repo: eventPayload.repository.name,
@@ -2539,6 +2544,11 @@ async function handlePullRequest() {
   }
 
   if (new Date(datestring) < new Date()) {
+    if (eventPayload.repository.fork) {
+      core.setFailed(`"${datestring}" is already in the past`);
+      process.exit(1);
+    }
+
     const { data } = await octokit.checks.create({
       owner: eventPayload.repository.owner.login,
       repo: eventPayload.repository.name,
@@ -2554,6 +2564,11 @@ async function handlePullRequest() {
     return;
   }
 
+  if (eventPayload.repository.fork) {
+    core.info(`✅ Scheduled to me merged on ${datestring}`);
+    process.exit(0);
+  }
+
   const { data } = await octokit.checks.create({
     owner: eventPayload.repository.owner.login,
     repo: eventPayload.repository.name,
@@ -2565,7 +2580,7 @@ async function handlePullRequest() {
       summary: "TO BE DONE: add useful summary"
     }
   });
-  core.info(`Check run cretaed: ${data.html_url}`);
+  core.info(`Check run created: ${data.html_url}`);
 }
 
 function hasScheduleCommand(text) {
