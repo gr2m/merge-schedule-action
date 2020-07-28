@@ -13,6 +13,7 @@ on:
     types:
       - opened
       - edited
+      - synchronize
   schedule:
     # https://crontab.guru/every-hour
     - cron: 0 * * * *
