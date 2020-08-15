@@ -33,6 +33,14 @@ In your pull requests, add a line to the end of the pull request description loo
 /schedule 2019-12-31
 ```
 
+Or if you need a more precise, timezone-safe setting, you can use an ISO 8601 date string
+
+```
+/schedule 2019-12-31T00:00:00.000Z
+```
+
+Any string that works with the [`new Date()` constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date) will work.
+
 To control at which time of the day you want the pull request to be merged, I recommend to adapt the `- cron: ...` setting in the workflow file.
 
 The action sets a pending commit status if the pull request was recognized as being scheduled.
