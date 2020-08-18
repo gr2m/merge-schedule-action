@@ -2007,17 +2007,18 @@ async function handleSchedule() {
     {
       owner,
       repo,
-      state: "open"
+      state: "open",
     },
-    response => {
+    (response) => {
       return response.data
-        .filter(pullRequest => hasScheduleCommand(pullRequest))
-        .filter(pullRequest => isntFromFork(pullRequest))
-        .map(pullRequest => {
+        .filter((pullRequest) => hasScheduleCommand(pullRequest))
+        .filter((pullRequest) => isntFromFork(pullRequest))
+        .map((pullRequest) => {
           return {
             number: pullRequest.number,
             html_url: pullRequest.html_url,
-            scheduledDate: getScheduleDateString(pullRequest.body)
+            scheduledDate: getScheduleDateString(pullRequest.body),
+            ref: pullRequest.head.sha,
           };
         });
     }
@@ -2030,7 +2031,7 @@ async function handleSchedule() {
   }
 
   const duePullRequests = pullRequests.filter(
-    pullRequest => new Date(pullRequest.scheduledDate) < new Date()
+    (pullRequest) => new Date(pullRequest.scheduledDate) < new Date()
   );
 
   core.info(`${duePullRequests.length} due pull requests found`);
@@ -2043,8 +2044,32 @@ async function handleSchedule() {
     await octokit.pulls.merge({
       owner,
       repo,
-      pull_number: pullRequest.number
+      pull_number: pullRequest.number,
     });
+
+    // find check runs by the Merge schedule action
+    const checkRuns = await octokit.paginate(octokit.checks.listForRef, {
+      owner: eventPayload.repository.owner.login,
+      repo: eventPayload.repository.name,
+      ref: pullRequest.ref,
+    });
+
+    const checkRun = checkRuns.pop();
+    if (!checkRun) continue;
+
+    await octokit.checks.update({
+      check_run_id: checkRun.id,
+      owner: eventPayload.repository.owner.login,
+      repo: eventPayload.repository.name,
+      name: "Merge Schedule",
+      head_sha: eventPayload.pull_request.head.sha,
+      status: "completed",
+      output: {
+        title: `Scheduled on ${datestring}`,
+        summary: "Merged successfully",
+      },
+    });
+
     core.info(`${pullRequest.html_url} merged`);
   }
 }
@@ -2519,6 +2544,11 @@ async function handlePullRequest() {
     `Handling pull request ${eventPayload.action} for ${eventPayload.pull_request.html_url}`
   );
 
+  if (eventPayload.pull_request.state !== "open") {
+    core.info(`Pull request already closed, ignoring`);
+    return;
+  }
+
   if (eventPayload.pull_request.head.repo.fork) {
     core.setFailed(`Setting a scheduled merge is not allowed from forks`);
     process.exit(1);
@@ -2541,8 +2571,8 @@ async function handlePullRequest() {
       conclusion: "failure",
       output: {
         title: `"${datestring}" is not a valid date`,
-        summary: "TO BE DONE: add useful summary"
-      }
+        summary: "TO BE DONE: add useful summary",
+      },
     });
     core.info(`Check run cretaed: ${data.html_url}`);
     return;
@@ -2557,8 +2587,8 @@ async function handlePullRequest() {
       conclusion: "failure",
       output: {
         title: `"${datestring}" is already in the past`,
-        summary: "TO BE DONE: add useful summary"
-      }
+        summary: "TO BE DONE: add useful summary",
+      },
     });
     core.info(`Check run cretaed: ${data.html_url}`);
     return;
@@ -2572,8 +2602,8 @@ async function handlePullRequest() {
     status: "in_progress",
     output: {
       title: `Scheduled to be merged on ${datestring}`,
-      summary: "TO BE DONE: add useful summary"
-    }
+      summary: "TO BE DONE: add useful summary",
+    },
   });
   core.info(`Check run created: ${data.html_url}`);
 }
