@@ -7,6 +7,8 @@ on:
   schedule:
     # https://crontab.guru/every-hour
     - cron: 0 * * * *
+  # manual trigger for testing
+  workflow_dispatch: {}
 
 jobs:
   merge_schedule:
