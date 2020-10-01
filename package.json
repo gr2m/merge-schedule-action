@@ -34,7 +34,7 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@octokit/action": "^1.2.0"
   }
 }
