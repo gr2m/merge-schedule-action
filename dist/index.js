@@ -2638,7 +2638,7 @@ async function handlePullRequest() {
         summary: "TO BE DONE: add useful summary",
       },
     });
-    core.info(`Check run cretaed: ${data.html_url}`);
+    core.info(`Check run created: ${data.html_url}`);
     return;
   }
 
@@ -2654,7 +2654,7 @@ async function handlePullRequest() {
         summary: "TO BE DONE: add useful summary",
       },
     });
-    core.info(`Check run cretaed: ${data.html_url}`);
+    core.info(`Check run created: ${data.html_url}`);
     return;
   }
 
