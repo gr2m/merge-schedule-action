@@ -2065,6 +2065,8 @@ async function handleSchedule() {
 
   const eventPayload = require(process.env.GITHUB_EVENT_PATH);
 
+  const mergeMethod = process.env.INPUT_MERGE_METHOD
+
   core.info(`Loading open pull request`);
   const pullRequests = await octokit.paginate(
     "GET /repos/:owner/:repo/pulls",
@@ -2109,6 +2111,7 @@ async function handleSchedule() {
       owner,
       repo,
       pull_number: pullRequest.number,
+      merge_method: mergeMethod
     });
 
     // find check runs by the Merge schedule action
