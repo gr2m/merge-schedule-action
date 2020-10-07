@@ -6,3 +6,10 @@ branding:
 runs:
   using: "node12"
   main: "dist/index.js"
+inputs:
+  merge_method:
+    description: |-
+      Merge method to use. Possible values are `merge`, `squash` or
+      `rebase`. Default is `merge`.
+    required: false
+    default: merge

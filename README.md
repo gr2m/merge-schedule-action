@@ -23,6 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: gr2m/merge-schedule-action@v1.x
+        with:
+          # Merge method to use. Possible values are merge, squash or
+          # rebase. Default is merge.
+          merge_method: squash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
