@@ -2005,8 +2005,7 @@ module.exports = require("child_process");
 module.exports = localeDate;
 
 function localeDate() {
-  const timeZone = process.env.TIME_ZONE || 'UTC'
-  const localeString = new Date().toLocaleString("en-US", { timeZone });
+  const localeString = new Date().toLocaleString("en-US", { timeZone: process.env.INPUT_TIME_ZONE });
   return new Date(localeString)
 }
 

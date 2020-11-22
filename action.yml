@@ -13,3 +13,8 @@ inputs:
       `rebase`. Default is `merge`.
     required: false
     default: merge
+  time_zone:
+    description: |-
+     Time zone to use. Default is UTC.
+    required: false
+    default: UTC
