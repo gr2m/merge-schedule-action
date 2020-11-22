@@ -1999,6 +1999,19 @@ module.exports = require("child_process");
 
 /***/ }),
 
+/***/ 146:
+/***/ (function(module) {
+
+module.exports = localeDate;
+
+function localeDate() {
+  const localeString = new Date().toLocaleString("en-US", { timeZone: process.env.INPUT_TIME_ZONE });
+  return new Date(localeString)
+}
+
+
+/***/ }),
+
 /***/ 151:
 /***/ (function(module) {
 
@@ -2055,6 +2068,7 @@ module.exports = handleSchedule;
 
 const core = __webpack_require__(470);
 const { Octokit } = __webpack_require__(725);
+const localeDate = __webpack_require__(146);
 
 /**
  * handle "schedule" event
@@ -2097,7 +2111,7 @@ async function handleSchedule() {
   }
 
   const duePullRequests = pullRequests.filter(
-    (pullRequest) => new Date(pullRequest.scheduledDate) < new Date()
+    (pullRequest) => new Date(pullRequest.scheduledDate) < localeDate()
   );
 
   core.info(`${duePullRequests.length} due pull requests found`);
@@ -2598,6 +2612,7 @@ module.exports = handlePullRequest;
 
 const core = __webpack_require__(470);
 const { Octokit } = __webpack_require__(725);
+const localeDate = __webpack_require__(146);
 
 /**
  * Handle "pull_request" event
@@ -2645,7 +2660,7 @@ async function handlePullRequest() {
     return;
   }
 
-  if (new Date(datestring) < new Date()) {
+  if (new Date(datestring) < localeDate()) {
     const { data } = await octokit.checks.create({
       owner: eventPayload.repository.owner.login,
       repo: eventPayload.repository.name,
