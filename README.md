@@ -29,6 +29,8 @@ jobs:
           merge_method: squash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set your time zone. Default is UTC
+          TIME_ZONE: 'UTC'
 ```
 
 In your pull requests, add a line to the end of the pull request description look looking like this
