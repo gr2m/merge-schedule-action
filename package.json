@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@semantic-release/git": "^9.0.0",
-    "@zeit/ncc": "^0.20.5",
+    "@vercel/ncc": "^0.25.1",
     "semantic-release": "^17.2.3"
   },
   "release": {
@@ -35,6 +35,6 @@
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "@octokit/action": "^1.2.0"
+    "@octokit/action": "^3.1.2"
   }
 }
