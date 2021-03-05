@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0-development",
   "description": "GitHub Action to merge pull requests on a scheduled day",
-  "repository": "https://github.com/gr2m/merge-schedule-action.git",
+  "repository": "github:gr2m/merge-schedule-action",
   "keywords": [
     "github-action"
   ],
