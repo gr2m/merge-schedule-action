@@ -169,6 +169,7 @@ async function handleSchedule() {
             html_url: pullRequest.html_url,
             scheduledDate: getScheduleDateString(pullRequest.body),
             ref: pullRequest.head.sha,
+            headSha: pullRequest.head.sha,
           };
         });
     }
@@ -213,7 +214,7 @@ async function handleSchedule() {
       owner,
       repo,
       name: "Merge Schedule",
-      head_sha: pullRequest.head.sha,
+      head_sha: pullRequest.headSha,
       status: "completed",
       output: {
         title: `Scheduled on ${datestring}`,
