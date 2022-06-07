@@ -4,7 +4,7 @@ branding:
   icon: "git-merge"
   color: purple
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/index.js"
 inputs:
   merge_method:
@@ -18,3 +18,8 @@ inputs:
      Time zone to use. Default is UTC.
     required: false
     default: UTC
+  check_name:
+    description: |-
+     Name for the check. Default is `Merge Schedule`.
+    required: false
+    default: 'Merge Schedule'
