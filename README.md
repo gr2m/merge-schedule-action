@@ -23,15 +23,13 @@ jobs:
   merge_schedule:
     runs-on: ubuntu-latest
     steps:
-      - uses: gr2m/merge-schedule-action@v1
+      - uses: gr2m/merge-schedule-action@v2
         with:
           # Merge method to use. Possible values are merge, squash or
           # rebase. Default is merge.
           merge_method: squash
           # Time zone to use. Default is UTC.
           time_zone: 'America/Los_Angeles'
-          # Name for the check. Default is `Merge Schedule`.
-          check_name: 'Scheduled Merge'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
