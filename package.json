@@ -15,7 +15,7 @@
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
     "@vercel/ncc": "^0.34.0",
-    "semantic-release": "^19.0.2"
+    "semantic-release": "^19.0.3"
   },
   "release": {
     "plugins": [
