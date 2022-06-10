@@ -88,7 +88,7 @@ export default async function handleSchedule(): Promise<void> {
     );
 
     const commentBody = generateBody(
-      `Scheduled on ${pullRequest.scheduledDate} successfully merged`,
+      `Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`,
       `success`
     );
 

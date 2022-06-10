@@ -10,6 +10,7 @@ import {
   hasScheduleCommand,
   isFork,
   isValidDate,
+  stringifyDate,
 } from "./utils";
 import {
   createComment,
@@ -60,19 +61,20 @@ export default async function handlePullRequest(): Promise<void> {
   const datestring = getScheduleDateString(pullRequest.body);
   core.info(`Schedule date found: "${datestring}"`);
 
-  let commentBody = generateBody(
-    `Scheduled to be merged on ${datestring}`,
-    `pending`
-  );
+  let commentBody = ``;
 
   if (!isValidDate(datestring)) {
     commentBody = generateBody(`"${datestring}" is not a valid date`, `error`);
-  }
-
-  if (new Date(datestring) < localeDate()) {
+  } else if (new Date(datestring) < localeDate()) {
+    let message = `${stringifyDate(datestring)} (UTC) is already in the past`;
+    if (process.env.INPUT_TIME_ZONE !== "UTC") {
+      message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
+    }
+    commentBody = generateBody(message, `warning`);
+  } else {
     commentBody = generateBody(
-      `"${datestring}" is already in the past`,
-      `warning`
+      `Scheduled to be merged on ${stringifyDate(datestring)} (UTC)`,
+      `pending`
     );
   }
 

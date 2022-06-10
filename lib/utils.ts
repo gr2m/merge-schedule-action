@@ -27,3 +27,9 @@ export function isValidDate(datestring: string): boolean {
   const date = new Date(datestring);
   return date instanceof Date && !isNaN(date as unknown as number);
 }
+
+export function stringifyDate(datestring: string): string {
+  const dateTimeString = new Date(datestring).toISOString().split(`.`)[0];
+  const [date, time] = dateTimeString.split(`T`);
+  return `${date} ${time}`;
+}
