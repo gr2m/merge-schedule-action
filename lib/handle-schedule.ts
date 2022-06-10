@@ -19,16 +19,15 @@ import {
  * handle "schedule" event
  */
 export default async function handleSchedule(): Promise<void> {
-  const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   if (!process.env.GITHUB_TOKEN) {
     core.setFailed("GITHUB_TOKEN environment variable is not set");
-    process.exit(1);
+    return;
   }
 
   const mergeMethod = process.env.INPUT_MERGE_METHOD;
   if (!isValidMergeMethod(mergeMethod)) {
     core.setFailed(`merge_method "${mergeMethod}" is invalid`);
-    process.exit(1);
+    return;
   }
 
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
@@ -37,8 +36,7 @@ export default async function handleSchedule(): Promise<void> {
   const pullRequests = await octokit.paginate(
     octokit.rest.pulls.list,
     {
-      owner,
-      repo,
+      ...github.context.repo,
       state: "open",
     },
     (response) => {
@@ -50,8 +48,6 @@ export default async function handleSchedule(): Promise<void> {
             number: pullRequest.number,
             html_url: pullRequest.html_url,
             scheduledDate: getScheduleDateString(pullRequest.body),
-            ref: pullRequest.head.sha,
-            headSha: pullRequest.head.sha,
           };
         });
     }
@@ -75,8 +71,7 @@ export default async function handleSchedule(): Promise<void> {
 
   for await (const pullRequest of duePullRequests) {
     await octokit.rest.pulls.merge({
-      owner,
-      repo,
+      ...github.context.repo,
       pull_number: pullRequest.number,
       merge_method: mergeMethod,
     });

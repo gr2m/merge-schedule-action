@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import { readFileSync } from "fs";
 import localeDate from "./locale-date";
 import type {
   PullRequestEvent,
@@ -26,12 +27,14 @@ import {
 export default async function handlePullRequest(): Promise<void> {
   if (!process.env.GITHUB_TOKEN) {
     core.setFailed("GITHUB_TOKEN environment variable is not set");
-    process.exit(1);
+    return;
   }
 
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
-  const eventPayload = github.context.payload as PullRequestEvent;
+  const eventPayload = JSON.parse(
+    readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: "utf8" })
+  ) as PullRequestEvent;
   const pullRequest = eventPayload.pull_request;
 
   core.info(
@@ -45,7 +48,7 @@ export default async function handlePullRequest(): Promise<void> {
 
   if (isFork(pullRequest as SimplePullRequest)) {
     core.setFailed("Setting a scheduled merge is not allowed from forks");
-    process.exit(1);
+    return;
   }
 
   const previousComment = await getPreviousComment(octokit, pullRequest.number);

@@ -4,11 +4,10 @@
     "module": "commonjs",
     "target": "ES2021", // https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping#node-16
     "outDir": "./dist",
-    "rootDir": "./lib",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true
   },
-  "include": ["./lib"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }

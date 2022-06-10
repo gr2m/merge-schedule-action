@@ -1,3 +1,4 @@
+import * as github from "@actions/github";
 import { GitHub } from "@actions/github/lib/utils";
 
 type Octokit = InstanceType<typeof GitHub>;
@@ -9,12 +10,10 @@ export async function getPreviousComment(
   octokit: Octokit,
   pullRequestNumber: number
 ) {
-  const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   const prComments = await octokit.paginate(
     octokit.rest.issues.listComments,
     {
-      owner,
-      repo,
+      ...github.context.repo,
       issue_number: pullRequestNumber,
     },
     (response) => {
@@ -52,10 +51,8 @@ export async function createComment(
   pullRequestNumber: number,
   body: string
 ) {
-  const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   return octokit.rest.issues.createComment({
-    owner,
-    repo,
+    ...github.context.repo,
     issue_number: pullRequestNumber,
     body,
   });
@@ -66,20 +63,16 @@ export async function updateComment(
   commentId: number,
   body: string
 ) {
-  const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   return octokit.rest.issues.updateComment({
-    owner,
-    repo,
+    ...github.context.repo,
     comment_id: commentId,
     body,
   });
 }
 
 export async function deleteComment(octokit: Octokit, commentId: number) {
-  const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   return octokit.rest.issues.deleteComment({
-    owner,
-    repo,
+    ...github.context.repo,
     comment_id: commentId,
   });
 }
