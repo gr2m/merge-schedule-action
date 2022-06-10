@@ -22,7 +22,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
-      - run: npm run lint
+      - if: ${{ github.event_name == 'pull_request' }}
+        run: npm run lint
+      - if: ${{ github.event_name == 'pull_request' }}
+        run: npm run test:ci
       - run: npm run build
       - uses: ./
         env:
