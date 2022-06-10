@@ -98,7 +98,7 @@ function getScheduleDateString(text) {
 // https://stackoverflow.com/a/1353711/206879
 function isValidDate(datestring) {
   const date = new Date(datestring);
-  return date instanceof Date && !Number.isNaN(date);
+  return date instanceof Date && !isNaN(date);
 }
 
 
