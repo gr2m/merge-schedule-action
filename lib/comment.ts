@@ -2,8 +2,8 @@ import { GitHub } from "@actions/github/lib/utils";
 
 type Octokit = InstanceType<typeof GitHub>;
 
-const commentHeader = `**Merge Schedule**`;
-const commentFooter = `<!-- Merge Schedule Pull Request Comment -->`;
+const commentHeader = "**Merge Schedule**";
+const commentFooter = "<!-- Merge Schedule Pull Request Comment -->";
 
 export async function getPreviousComment(
   octokit: Octokit,
@@ -27,13 +27,13 @@ export async function getPreviousComment(
   return previousComment;
 }
 
-type State = `error` | `warning` | `pending` | `success`;
+type State = "error" | "warning" | "pending" | "success";
 
 const statePrefix: Record<State, string> = {
-  success: `:white_check_mark:`,
-  error: `:x:`,
-  warning: `:warning:`,
-  pending: `:hourglass:`,
+  success: ":white_check_mark:",
+  error: ":x:",
+  warning: ":warning:",
+  pending: ":hourglass:",
 };
 
 export function generateBody(body: string, state: State) {

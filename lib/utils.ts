@@ -29,7 +29,7 @@ export function isValidDate(datestring: string): boolean {
 }
 
 export function stringifyDate(datestring: string): string {
-  const dateTimeString = new Date(datestring).toISOString().split(`.`)[0];
-  const [date, time] = dateTimeString.split(`T`);
+  const dateTimeString = new Date(datestring).toISOString().split(".")[0];
+  const [date, time] = dateTimeString.split("T");
   return `${date} ${time}`;
 }

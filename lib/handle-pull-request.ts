@@ -25,7 +25,7 @@ import {
  */
 export default async function handlePullRequest(): Promise<void> {
   if (!process.env.GITHUB_TOKEN) {
-    core.setFailed(`GITHUB_TOKEN environment variable is not set`);
+    core.setFailed("GITHUB_TOKEN environment variable is not set");
     process.exit(1);
   }
 
@@ -39,12 +39,12 @@ export default async function handlePullRequest(): Promise<void> {
   );
 
   if (pullRequest.state !== "open") {
-    core.info(`Pull request already closed, ignoring`);
+    core.info("Pull request already closed, ignoring");
     return;
   }
 
   if (isFork(pullRequest as SimplePullRequest)) {
-    core.setFailed(`Setting a scheduled merge is not allowed from forks`);
+    core.setFailed("Setting a scheduled merge is not allowed from forks");
     process.exit(1);
   }
 
@@ -54,33 +54,33 @@ export default async function handlePullRequest(): Promise<void> {
     if (previousComment) {
       await deleteComment(octokit, previousComment.id);
     }
-    core.info(`No /schedule command found`);
+    core.info("No /schedule command found");
     return;
   }
 
   const datestring = getScheduleDateString(pullRequest.body);
   core.info(`Schedule date found: "${datestring}"`);
 
-  let commentBody = ``;
+  let commentBody = "";
 
   if (!isValidDate(datestring)) {
-    commentBody = generateBody(`"${datestring}" is not a valid date`, `error`);
+    commentBody = generateBody(`"${datestring}" is not a valid date`, "error");
   } else if (new Date(datestring) < localeDate()) {
     let message = `${stringifyDate(datestring)} (UTC) is already in the past`;
     if (process.env.INPUT_TIME_ZONE !== "UTC") {
       message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
     }
-    commentBody = generateBody(message, `warning`);
+    commentBody = generateBody(message, "warning");
   } else {
     commentBody = generateBody(
       `Scheduled to be merged on ${stringifyDate(datestring)} (UTC)`,
-      `pending`
+      "pending"
     );
   }
 
   if (previousComment) {
     if (previousComment.body === commentBody) {
-      core.info(`Comment already up to date`);
+      core.info("Comment already up to date");
       return;
     }
     const { data } = await updateComment(

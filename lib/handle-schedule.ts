@@ -21,7 +21,7 @@ import {
 export default async function handleSchedule(): Promise<void> {
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   if (!process.env.GITHUB_TOKEN) {
-    core.setFailed(`GITHUB_TOKEN environment variable is not set`);
+    core.setFailed("GITHUB_TOKEN environment variable is not set");
     process.exit(1);
   }
 
@@ -33,7 +33,7 @@ export default async function handleSchedule(): Promise<void> {
 
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
-  core.info(`Loading open pull requests`);
+  core.info("Loading open pull requests");
   const pullRequests = await octokit.paginate(
     octokit.rest.pulls.list,
     {
@@ -89,7 +89,7 @@ export default async function handleSchedule(): Promise<void> {
 
     const commentBody = generateBody(
       `Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`,
-      `success`
+      "success"
     );
 
     if (previousComment) {
