@@ -79,6 +79,10 @@ export default async function handlePullRequest(): Promise<void> {
   }
 
   if (previousComment) {
+    if (previousComment.body === commentBody) {
+      core.info(`Comment already up to date`);
+      return;
+    }
     const { data } = await updateComment(
       octokit,
       previousComment.id,
