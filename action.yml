@@ -18,8 +18,3 @@ inputs:
      Time zone to use. Default is UTC.
     required: false
     default: UTC
-  check_name:
-    description: |-
-     Name for the check. Default is `Merge Schedule`.
-    required: false
-    default: 'Merge Schedule'
