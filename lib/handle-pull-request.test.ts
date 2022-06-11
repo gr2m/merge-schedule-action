@@ -4,8 +4,8 @@ import { describe, test, expect, vi, afterAll, beforeAll } from "vitest";
 import { mockProcessStdout } from "vitest-mock-process";
 import {
   generatePullRequestWebhook,
-  cleanupWebhooks,
-  setupWebhooks,
+  cleanupWebhooksFolder,
+  setupWebhooksFolder,
 } from "../test/utils";
 import handlePullRequest from "./handle-pull-request";
 import * as comment from "./comment";
@@ -15,11 +15,11 @@ mockDate.set("2022-06-10T00:00:00.000Z");
 
 describe("handlePullRequest", () => {
   beforeAll(() => {
-    setupWebhooks();
+    setupWebhooksFolder();
   });
 
   afterAll(() => {
-    cleanupWebhooks();
+    cleanupWebhooksFolder();
   });
 
   test("closed pull request", async () => {

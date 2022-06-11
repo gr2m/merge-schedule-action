@@ -2,25 +2,22 @@ import { rest } from "msw";
 
 const githubUrl = (path: string) => `https://api.github.com${path}`;
 
-type IssueCommentsPathParams = {
+type BasePathParams = {
   owner: string;
   repo: string;
+};
+
+type IssueCommentsPathParams = BasePathParams & {
   issue_number: string;
 };
 
-type IssueCommentPathParams = {
-  owner: string;
-  repo: string;
+type IssueCommentPathParams = BasePathParams & {
   comment_id: string;
-};
-
-type PullsPathParams = {
-  owner: string;
-  repo: string;
 };
 
 export const githubHandlers = [
   // List pull request comments
+  // https://docs.github.com/en/rest/issues/comments#list-issue-comments
   rest.get<{}, IssueCommentsPathParams>(
     githubUrl("/repos/:owner/:repo/issues/:issue_number/comments"),
     (req, res, ctx) => {
@@ -44,6 +41,7 @@ export const githubHandlers = [
   ),
 
   // Create pull request comment
+  // https://docs.github.com/en/rest/issues/comments#create-an-issue-comment
   rest.post<{ body: string }, IssueCommentsPathParams>(
     githubUrl("/repos/:owner/:repo/issues/:issue_number/comments"),
     (req, res, ctx) => {
@@ -60,6 +58,7 @@ export const githubHandlers = [
   ),
 
   // Update pull request comment
+  // https://docs.github.com/en/rest/issues/comments#update-an-issue-comment
   rest.patch<{ body: string }, IssueCommentPathParams>(
     githubUrl("/repos/:owner/:repo/issues/comments/:comment_id"),
     (req, res, ctx) => {
@@ -77,6 +76,7 @@ export const githubHandlers = [
   ),
 
   // Delete pull request comment
+  // https://docs.github.com/en/rest/issues/comments#delete-an-issue-comment
   rest.delete<{}, IssueCommentPathParams>(
     githubUrl("/repos/:owner/:repo/issues/comments/:comment_id"),
     (req, res, ctx) => {
@@ -85,7 +85,8 @@ export const githubHandlers = [
   ),
 
   // List pull requests
-  rest.get<{}, PullsPathParams>(
+  // https://docs.github.com/en/rest/pulls/pulls#merge-a-pull-request
+  rest.get<{}, BasePathParams>(
     githubUrl("/repos/:owner/:repo/pulls"),
     (req, res, ctx) => {
       const { owner, repo } = req.params;
@@ -131,7 +132,8 @@ export const githubHandlers = [
   ),
 
   // Merge pull request
-  rest.put<{}, IssueCommentPathParams>(
+  // https://docs.github.com/en/rest/pulls/pulls#merge-a-pull-request
+  rest.put<{}, BasePathParams>(
     githubUrl("/repos/:owner/:repo/pulls/:pull_number/merge"),
     (req, res, ctx) => {
       return res(
