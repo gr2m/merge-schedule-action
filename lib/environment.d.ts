@@ -6,6 +6,7 @@ declare global {
       GITHUB_EVENT_PATH: string;
       INPUT_MERGE_METHOD: string;
       INPUT_TIME_ZONE: string;
+      INPUT_REQUIRE_STATUSES_SUCCESS: string;
     }
   }
 }

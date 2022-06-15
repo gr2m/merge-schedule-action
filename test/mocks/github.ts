@@ -15,6 +15,10 @@ type IssueCommentPathParams = BasePathParams & {
   comment_id: string;
 };
 
+type CommitStatusesPathParams = BasePathParams & {
+  ref: string;
+};
+
 export const githubHandlers = [
   // List pull request comments
   // https://docs.github.com/en/rest/issues/comments#list-issue-comments
@@ -99,6 +103,7 @@ export const githubHandlers = [
             state: "open",
             body: "Simple body\n/schedule 2022-06-08",
             head: {
+              sha: "abc123success",
               repo: {
                 fork: false,
               },
@@ -110,6 +115,7 @@ export const githubHandlers = [
             state: "open",
             body: "Simple body\n/schedule 2022-06-09",
             head: {
+              sha: "abc123pending",
               repo: {
                 fork: false,
               },
@@ -121,6 +127,7 @@ export const githubHandlers = [
             state: "open",
             body: "Simple body\n/schedule 2022-06-12",
             head: {
+              sha: "abc123success",
               repo: {
                 fork: false,
               },
@@ -141,6 +148,40 @@ export const githubHandlers = [
         ctx.json({
           merged: true,
           message: "Pull Request successfully merged",
+        })
+      );
+    }
+  ),
+
+  // Get the combined status for a specific reference
+  // https://docs.github.com/en/rest/commits/statuses#get-the-combined-status-for-a-specific-reference
+  rest.get<{}, CommitStatusesPathParams>(
+    githubUrl("/repos/:owner/:repo/commits/:ref/status"),
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          state: req.params.ref.endsWith("success") ? "success" : "pending",
+          statuses: [],
+        })
+      );
+    }
+  ),
+
+  // Lists check runs for a commit ref
+  // https://docs.github.com/en/rest/checks/runs#list-check-runs-for-a-git-reference
+  rest.get<{}, CommitStatusesPathParams>(
+    githubUrl("/repos/:owner/:repo/commits/:ref/check-runs"),
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          total_count: 1,
+          check_runs: [
+            {
+              status: "completed",
+            },
+          ],
         })
       );
     }

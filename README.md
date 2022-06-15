@@ -30,6 +30,9 @@ jobs:
           merge_method: squash
           # Time zone to use. Default is UTC.
           time_zone: 'America/Los_Angeles'
+          # Require all pull request statuses to be successful before
+          # merging. Default is `false`.
+          require_statuses_success: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

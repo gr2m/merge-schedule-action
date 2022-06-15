@@ -8,6 +8,7 @@ import {
   updateComment,
 } from "./comment";
 import localeDate from "./locale-date";
+import { getCommitChecksRunsStatus, getCommitStatusesStatus } from "./commit";
 import {
   getScheduleDateString,
   hasScheduleCommand,
@@ -25,6 +26,8 @@ export default async function handleSchedule(): Promise<void> {
   }
 
   const mergeMethod = process.env.INPUT_MERGE_METHOD;
+  const requireStatusesSuccess =
+    process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
   if (!isValidMergeMethod(mergeMethod)) {
     core.setFailed(`merge_method "${mergeMethod}" is invalid`);
     return;
@@ -48,6 +51,7 @@ export default async function handleSchedule(): Promise<void> {
             number: pullRequest.number,
             html_url: pullRequest.html_url,
             scheduledDate: getScheduleDateString(pullRequest.body),
+            ref: pullRequest.head.sha,
           };
         });
     }
@@ -70,6 +74,17 @@ export default async function handleSchedule(): Promise<void> {
   }
 
   for await (const pullRequest of duePullRequests) {
+    if (requireStatusesSuccess) {
+      const [checkRunsStatus, statusesStatus] = await Promise.all([
+        getCommitChecksRunsStatus(octokit, pullRequest.ref),
+        getCommitStatusesStatus(octokit, pullRequest.ref),
+      ]);
+      if (checkRunsStatus !== "completed" || statusesStatus !== "success") {
+        core.info(`${pullRequest.html_url} is not ready to be merged yet`);
+        continue;
+      }
+    }
+
     await octokit.rest.pulls.merge({
       ...github.context.repo,
       pull_number: pullRequest.number,

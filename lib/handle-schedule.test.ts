@@ -57,4 +57,33 @@ describe("handleSchedule", () => {
       <!-- Merge Schedule Pull Request Comment -->"
     `);
   });
+
+  test("due pull requests with require_statuses_success = true", async () => {
+    const mockStdout = mockProcessStdout();
+    process.env.INPUT_REQUIRE_STATUSES_SUCCESS = "true";
+    const createComment = vi.spyOn(comment, "createComment");
+    const updateComment = vi.spyOn(comment, "updateComment");
+
+    await handleSchedule();
+
+    expect(mockStdout.mock.calls).toEqual([
+      [`Loading open pull requests\n`],
+      [`3 scheduled pull requests found\n`],
+      [`2 due pull requests found\n`],
+      [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+      ],
+      [
+        `https://github.com/gr2m/merge-schedule-action/pull/3 is not ready to be merged yet\n`,
+      ],
+    ]);
+    expect(createComment.mock.calls).toHaveLength(1);
+    expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
+      ":white_check_mark: **Merge Schedule**
+      Scheduled on 2022-06-08 (UTC) successfully merged
+      <!-- Merge Schedule Pull Request Comment -->"
+    `);
+    expect(updateComment.mock.calls).toHaveLength(0);
+  });
 });
