@@ -18,3 +18,9 @@ inputs:
      Time zone to use. Default is UTC.
     required: false
     default: UTC
+  require_statuses_success:
+    description: |-
+      Require all pull request statuses to be successful before
+      merging. Default is `false`.
+    required: false
+    default: 'false'
