@@ -8779,6 +8779,63 @@ exports.deleteComment = deleteComment;
 
 /***/ }),
 
+/***/ 1870:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getCommitStatusesStatus = exports.getCommitChecksRunsStatus = void 0;
+const github = __importStar(__nccwpck_require__(5438));
+async function getCommitChecksRunsStatus(octokit, commitRef) {
+    const { data } = await octokit.rest.checks.listForRef({
+        ...github.context.repo,
+        ref: commitRef,
+    });
+    if (data.total_count === 0) {
+        return "completed";
+    }
+    if (data.check_runs.every((check) => check.status === "completed")) {
+        return "completed";
+    }
+    return "in_progress";
+}
+exports.getCommitChecksRunsStatus = getCommitChecksRunsStatus;
+async function getCommitStatusesStatus(octokit, commitRef) {
+    const { data } = await octokit.rest.repos.getCombinedStatusForRef({
+        ...github.context.repo,
+        ref: commitRef,
+    });
+    return data.state;
+}
+exports.getCommitStatusesStatus = getCommitStatusesStatus;
+
+
+/***/ }),
+
 /***/ 2719:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -8914,6 +8971,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const comment_1 = __nccwpck_require__(8111);
 const locale_date_1 = __importDefault(__nccwpck_require__(3663));
+const commit_1 = __nccwpck_require__(1870);
 const utils_1 = __nccwpck_require__(1715);
 /**
  * handle "schedule" event
@@ -8924,6 +8982,7 @@ async function handleSchedule() {
         return;
     }
     const mergeMethod = process.env.INPUT_MERGE_METHOD;
+    const requireStatusesSuccess = process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
     if (!(0, utils_1.isValidMergeMethod)(mergeMethod)) {
         core.setFailed(`merge_method "${mergeMethod}" is invalid`);
         return;
@@ -8942,6 +9001,7 @@ async function handleSchedule() {
                 number: pullRequest.number,
                 html_url: pullRequest.html_url,
                 scheduledDate: (0, utils_1.getScheduleDateString)(pullRequest.body),
+                ref: pullRequest.head.sha,
             };
         });
     });
@@ -8955,6 +9015,16 @@ async function handleSchedule() {
         return;
     }
     for await (const pullRequest of duePullRequests) {
+        if (requireStatusesSuccess) {
+            const [checkRunsStatus, statusesStatus] = await Promise.all([
+                (0, commit_1.getCommitChecksRunsStatus)(octokit, pullRequest.ref),
+                (0, commit_1.getCommitStatusesStatus)(octokit, pullRequest.ref),
+            ]);
+            if (checkRunsStatus !== "completed" || statusesStatus !== "success") {
+                core.info(`${pullRequest.html_url} is not ready to be merged yet`);
+                continue;
+            }
+        }
         await octokit.rest.pulls.merge({
             ...github.context.repo,
             pull_number: pullRequest.number,
