@@ -80,17 +80,32 @@ export default async function handleSchedule(): Promise<void> {
         getCommitStatusesStatus(octokit, pullRequest.ref),
       ]);
       if (checkRunsStatus !== "completed" || statusesStatus !== "success") {
-        core.info(`${pullRequest.html_url} is not ready to be merged yet`);
+        core.info(
+          `${pullRequest.html_url} is not ready to be merged yet because all checks are not completed or statuses are not success`
+        );
         continue;
       }
     }
 
-    await octokit.rest.pulls.merge({
-      ...github.context.repo,
-      pull_number: pullRequest.number,
-      merge_method: mergeMethod,
-    });
-    core.info(`${pullRequest.html_url} merged`);
+    try {
+      await octokit.rest.pulls.merge({
+        ...github.context.repo,
+        pull_number: pullRequest.number,
+        merge_method: mergeMethod,
+      });
+      core.info(`${pullRequest.html_url} merged`);
+    } catch (error) {
+      const { data } = await createComment(
+        octokit,
+        pullRequest.number,
+        generateBody(
+          `Scheduled merge failed: ${(error as Error).message}`,
+          "error"
+        )
+      );
+      core.info(`Comment created: ${data.html_url}`);
+      continue;
+    }
 
     const previousComment = await getPreviousComment(
       octokit,

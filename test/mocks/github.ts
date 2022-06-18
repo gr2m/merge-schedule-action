@@ -15,6 +15,10 @@ type IssueCommentPathParams = BasePathParams & {
   comment_id: string;
 };
 
+type PullRequestPathParams = BasePathParams & {
+  pull_number: string;
+};
+
 type CommitStatusesPathParams = BasePathParams & {
   ref: string;
 };
@@ -133,6 +137,18 @@ export const githubHandlers = [
               },
             },
           },
+          {
+            number: 13,
+            html_url: `https://github.com/${owner}/${repo}/pull/13`,
+            state: "open",
+            body: "With conflicts body\n/schedule 2022-06-09",
+            head: {
+              sha: "abc123success",
+              repo: {
+                fork: false,
+              },
+            },
+          },
         ])
       );
     }
@@ -140,9 +156,22 @@ export const githubHandlers = [
 
   // Merge pull request
   // https://docs.github.com/en/rest/pulls/pulls#merge-a-pull-request
-  rest.put<{}, BasePathParams>(
+  rest.put<{}, PullRequestPathParams>(
     githubUrl("/repos/:owner/:repo/pulls/:pull_number/merge"),
     (req, res, ctx) => {
+      const pullNumber = parseInt(req.params.pull_number, 10);
+
+      if (pullNumber === 13) {
+        return res(
+          ctx.status(405),
+          ctx.json({
+            message: "Pull Request is not mergeable",
+            documentation_url:
+              "https://docs.github.com/rest/reference/pulls#merge-a-pull-request",
+          })
+        );
+      }
+
       return res(
         ctx.status(200),
         ctx.json({
