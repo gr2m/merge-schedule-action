@@ -9021,16 +9021,23 @@ async function handleSchedule() {
                 (0, commit_1.getCommitStatusesStatus)(octokit, pullRequest.ref),
             ]);
             if (checkRunsStatus !== "completed" || statusesStatus !== "success") {
-                core.info(`${pullRequest.html_url} is not ready to be merged yet`);
+                core.info(`${pullRequest.html_url} is not ready to be merged yet because all checks are not completed or statuses are not success`);
                 continue;
             }
         }
-        await octokit.rest.pulls.merge({
-            ...github.context.repo,
-            pull_number: pullRequest.number,
-            merge_method: mergeMethod,
-        });
-        core.info(`${pullRequest.html_url} merged`);
+        try {
+            await octokit.rest.pulls.merge({
+                ...github.context.repo,
+                pull_number: pullRequest.number,
+                merge_method: mergeMethod,
+            });
+            core.info(`${pullRequest.html_url} merged`);
+        }
+        catch (error) {
+            const { data } = await (0, comment_1.createComment)(octokit, pullRequest.number, (0, comment_1.generateBody)(`Scheduled merge failed: ${error.message}`, "error"));
+            core.info(`Comment created: ${data.html_url}`);
+            continue;
+        }
         const previousComment = await (0, comment_1.getPreviousComment)(octokit, pullRequest.number);
         const commentBody = (0, comment_1.generateBody)(`Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`, "success");
         if (previousComment) {
