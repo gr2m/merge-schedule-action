@@ -28,6 +28,7 @@ export default async function handleSchedule(): Promise<void> {
   const mergeMethod = process.env.INPUT_MERGE_METHOD;
   const requireStatusesSuccess =
     process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
+  const automergeFailLabel = process.env.INPUT_AUTOMERGE_FAIL_LABEL;
   if (!isValidMergeMethod(mergeMethod)) {
     core.setFailed(`merge_method "${mergeMethod}" is invalid`);
     return;
@@ -46,6 +47,9 @@ export default async function handleSchedule(): Promise<void> {
       return response.data
         .filter((pullRequest) => !isFork(pullRequest as SimplePullRequest))
         .filter((pullRequest) => hasScheduleCommand(pullRequest.body))
+        .filter((pullRequest) =>
+          pullRequest.labels.every((label) => label.name !== automergeFailLabel)
+        )
         .map((pullRequest) => {
           return {
             number: pullRequest.number,
@@ -95,15 +99,39 @@ export default async function handleSchedule(): Promise<void> {
       });
       core.info(`${pullRequest.html_url} merged`);
     } catch (error) {
-      const { data } = await createComment(
+      const previousComment = await getPreviousComment(
         octokit,
         pullRequest.number,
-        generateBody(
-          `Scheduled merge failed: ${(error as Error).message}`,
-          "error"
-        )
+        "fail"
       );
-      core.info(`Comment created: ${data.html_url}`);
+      const commentBody = generateBody(
+        `Scheduled merge failed: ${
+          (error as Error).message
+        }\nIn order to let the automerge-automation try again, the label "${automergeFailLabel}" should be removed.`,
+        "error",
+        "fail"
+      );
+      if (previousComment) {
+        const { data } = await updateComment(
+          octokit,
+          previousComment.id,
+          commentBody
+        );
+        core.info(`Comment updated: ${data.html_url}`);
+      } else {
+        const { data } = await createComment(
+          octokit,
+          pullRequest.number,
+          commentBody
+        );
+        core.info(`Comment created: ${data.html_url}`);
+      }
+      await octokit.rest.issues.addLabels({
+        ...github.context.repo,
+        issue_number: pullRequest.number,
+        labels: [automergeFailLabel],
+      });
+      core.info(`Label added: "${automergeFailLabel}"`);
       continue;
     }
 

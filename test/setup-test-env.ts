@@ -6,6 +6,7 @@ process.env.GITHUB_REPOSITORY = "gr2m/merge-schedule-action";
 process.env.INPUT_MERGE_METHOD = "merge";
 process.env.INPUT_TIME_ZONE = "UTC";
 process.env.INPUT_REQUIRE_STATUSES_SUCCESS = "false";
+process.env.INPUT_AUTOMERGE_FAIL_LABEL = "automerge-fail";
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 

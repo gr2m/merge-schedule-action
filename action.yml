@@ -24,3 +24,9 @@ inputs:
       merging. Default is `false`.
     required: false
     default: 'false'
+  automerge_fail_label:
+    description: |-
+      Label to apply to the pull request if the merge fails. Default is
+      `automerge-fail`.
+    required: false
+    default: 'automerge-fail'

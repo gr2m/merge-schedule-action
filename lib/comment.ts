@@ -5,10 +5,14 @@ type Octokit = InstanceType<typeof GitHub>;
 
 const commentHeader = "**Merge Schedule**";
 const commentFooter = "<!-- Merge Schedule Pull Request Comment -->";
+const commentFailFooter = "<!-- Merge Schedule Pull Request Comment Fail -->";
+
+type CommentVariant = "default" | "fail";
 
 export async function getPreviousComment(
   octokit: Octokit,
-  pullRequestNumber: number
+  pullRequestNumber: number,
+  variant: CommentVariant = "default"
 ) {
   const prComments = await octokit.paginate(
     octokit.rest.issues.listComments,
@@ -18,7 +22,9 @@ export async function getPreviousComment(
     },
     (response) => {
       return response.data.filter((comment) =>
-        comment.body?.includes(commentFooter)
+        comment.body?.includes(
+          variant === "fail" ? commentFailFooter : commentFooter
+        )
       );
     }
   );
@@ -35,13 +41,18 @@ const statePrefix: Record<State, string> = {
   pending: ":hourglass:",
 };
 
-export function generateBody(body: string, state: State) {
+export function generateBody(
+  body: string,
+  state: State,
+  variant: CommentVariant = "default"
+) {
   let newBody = body;
   if (!body.startsWith(commentHeader)) {
     newBody = `${commentHeader}\n${newBody}`;
   }
-  if (!body.endsWith(commentFooter)) {
-    newBody = `${newBody}\n${commentFooter}`;
+  const footer = variant === "fail" ? commentFailFooter : commentFooter;
+  if (!body.endsWith(footer)) {
+    newBody = `${newBody}\n${footer}`;
   }
   return `${statePrefix[state]} ${newBody}`;
 }

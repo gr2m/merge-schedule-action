@@ -33,6 +33,9 @@ jobs:
           # Require all pull request statuses to be successful before
           # merging. Default is `false`.
           require_statuses_success: 'true'
+          # Label to apply to the pull request if the merge fails. Default is
+          # `automerge-fail`.
+          automerge_fail_label: 'merge-schedule-failed'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

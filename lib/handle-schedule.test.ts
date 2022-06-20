@@ -33,19 +33,24 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`4 scheduled pull requests found\n`],
-      [`3 due pull requests found\n`],
+      [`5 scheduled pull requests found\n`],
+      [`4 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
       [`https://github.com/gr2m/merge-schedule-action/pull/3 merged\n`],
       [
-        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-1\n`,
+        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/3#issuecomment-31\n`,
       ],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-132\n`,
       ],
+      [`Label added: "automerge-fail"\n`],
+      [
+        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/6#issuecomment-61\n`,
+      ],
+      [`Label added: "automerge-fail"\n`],
     ]);
     expect(createComment.mock.calls).toHaveLength(2);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
@@ -56,13 +61,20 @@ describe("handleSchedule", () => {
     expect(createComment.mock.calls[1][2]).toMatchInlineSnapshot(`
       ":x: **Merge Schedule**
       Scheduled merge failed: Pull Request is not mergeable
-      <!-- Merge Schedule Pull Request Comment -->"
+      In order to let the automerge-automation try again, the label \\"automerge-fail\\" should be removed.
+      <!-- Merge Schedule Pull Request Comment Fail -->"
     `);
-    expect(updateComment.mock.calls).toHaveLength(1);
+    expect(updateComment.mock.calls).toHaveLength(2);
     expect(updateComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":white_check_mark: **Merge Schedule**
       Scheduled on 2022-06-09 (UTC) successfully merged
       <!-- Merge Schedule Pull Request Comment -->"
+    `);
+    expect(updateComment.mock.calls[1][2]).toMatchInlineSnapshot(`
+      ":x: **Merge Schedule**
+      Scheduled merge failed: Pull Request is not mergeable
+      In order to let the automerge-automation try again, the label \\"automerge-fail\\" should be removed.
+      <!-- Merge Schedule Pull Request Comment Fail -->"
     `);
   });
 
@@ -76,18 +88,23 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`4 scheduled pull requests found\n`],
-      [`3 due pull requests found\n`],
+      [`5 scheduled pull requests found\n`],
+      [`4 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
       [
         `https://github.com/gr2m/merge-schedule-action/pull/3 is not ready to be merged yet because all checks are not completed or statuses are not success\n`,
       ],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-132\n`,
       ],
+      [`Label added: "automerge-fail"\n`],
+      [
+        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/6#issuecomment-61\n`,
+      ],
+      [`Label added: "automerge-fail"\n`],
     ]);
     expect(createComment.mock.calls).toHaveLength(2);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
@@ -98,8 +115,15 @@ describe("handleSchedule", () => {
     expect(createComment.mock.calls[1][2]).toMatchInlineSnapshot(`
       ":x: **Merge Schedule**
       Scheduled merge failed: Pull Request is not mergeable
-      <!-- Merge Schedule Pull Request Comment -->"
+      In order to let the automerge-automation try again, the label \\"automerge-fail\\" should be removed.
+      <!-- Merge Schedule Pull Request Comment Fail -->"
     `);
-    expect(updateComment.mock.calls).toHaveLength(0);
+    expect(updateComment.mock.calls).toHaveLength(1);
+    expect(updateComment.mock.calls[0][2]).toMatchInlineSnapshot(`
+      ":x: **Merge Schedule**
+      Scheduled merge failed: Pull Request is not mergeable
+      In order to let the automerge-automation try again, the label \\"automerge-fail\\" should be removed.
+      <!-- Merge Schedule Pull Request Comment Fail -->"
+    `);
   });
 });
