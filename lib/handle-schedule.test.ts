@@ -33,8 +33,8 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`3 scheduled pull requests found\n`],
-      [`2 due pull requests found\n`],
+      [`4 scheduled pull requests found\n`],
+      [`3 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
@@ -43,11 +43,19 @@ describe("handleSchedule", () => {
       [
         `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-1\n`,
       ],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-2\n`,
+      ],
     ]);
-    expect(createComment.mock.calls).toHaveLength(1);
+    expect(createComment.mock.calls).toHaveLength(2);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":white_check_mark: **Merge Schedule**
       Scheduled on 2022-06-08 (UTC) successfully merged
+      <!-- Merge Schedule Pull Request Comment -->"
+    `);
+    expect(createComment.mock.calls[1][2]).toMatchInlineSnapshot(`
+      ":x: **Merge Schedule**
+      Scheduled merge failed: Pull Request is not mergeable
       <!-- Merge Schedule Pull Request Comment -->"
     `);
     expect(updateComment.mock.calls).toHaveLength(1);
@@ -68,20 +76,28 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`3 scheduled pull requests found\n`],
-      [`2 due pull requests found\n`],
+      [`4 scheduled pull requests found\n`],
+      [`3 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
       ],
       [
-        `https://github.com/gr2m/merge-schedule-action/pull/3 is not ready to be merged yet\n`,
+        `https://github.com/gr2m/merge-schedule-action/pull/3 is not ready to be merged yet because all checks are not completed or statuses are not success\n`,
+      ],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/13#issuecomment-2\n`,
       ],
     ]);
-    expect(createComment.mock.calls).toHaveLength(1);
+    expect(createComment.mock.calls).toHaveLength(2);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":white_check_mark: **Merge Schedule**
       Scheduled on 2022-06-08 (UTC) successfully merged
+      <!-- Merge Schedule Pull Request Comment -->"
+    `);
+    expect(createComment.mock.calls[1][2]).toMatchInlineSnapshot(`
+      ":x: **Merge Schedule**
+      Scheduled merge failed: Pull Request is not mergeable
       <!-- Merge Schedule Pull Request Comment -->"
     `);
     expect(updateComment.mock.calls).toHaveLength(0);
