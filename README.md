@@ -46,10 +46,16 @@ In your pull requests, add a line to the end of the pull request description loo
 /schedule 2022-06-08
 ```
 
-Or if you need a more precise, timezone-safe setting, you can use an `ISO 8601` date string
+If you need a more precise, timezone-safe setting, you can use an `ISO 8601` date string
 
 ```
 /schedule 2022-06-08T09:00:00.000Z
+```
+
+Or if you want to merge the next time the merge action is scheduled via the cron expressions, you can leave the date empty
+
+```
+/schedule
 ```
 
 Any string that works with the [`new Date()` constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date) will work.
