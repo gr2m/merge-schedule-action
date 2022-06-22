@@ -62,21 +62,33 @@ export default async function handlePullRequest(): Promise<void> {
   }
 
   const datestring = getScheduleDateString(pullRequest.body);
-  core.info(`Schedule date found: "${datestring}"`);
+  if (datestring) {
+    core.info(`Schedule date found: "${datestring}"`);
+  }
 
   let commentBody = "";
 
-  if (!isValidDate(datestring)) {
-    commentBody = generateBody(`"${datestring}" is not a valid date`, "error");
-  } else if (new Date(datestring) < localeDate()) {
-    let message = `${stringifyDate(datestring)} (UTC) is already in the past`;
-    if (process.env.INPUT_TIME_ZONE !== "UTC") {
-      message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
+  if (datestring) {
+    if (!isValidDate(datestring)) {
+      commentBody = generateBody(
+        `"${datestring}" is not a valid date`,
+        "error"
+      );
+    } else if (new Date(datestring) < localeDate()) {
+      let message = `${stringifyDate(datestring)} (UTC) is already in the past`;
+      if (process.env.INPUT_TIME_ZONE !== "UTC") {
+        message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
+      }
+      commentBody = generateBody(message, "warning");
+    } else {
+      commentBody = generateBody(
+        `Scheduled to be merged on ${stringifyDate(datestring)} (UTC)`,
+        "pending"
+      );
     }
-    commentBody = generateBody(message, "warning");
   } else {
     commentBody = generateBody(
-      `Scheduled to be merged on ${stringifyDate(datestring)} (UTC)`,
+      `Scheduled to be merged the next time the merge action is scheduled via the cron expressions`,
       "pending"
     );
   }

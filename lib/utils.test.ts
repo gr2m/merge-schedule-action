@@ -22,11 +22,11 @@ test("getScheduleDateString", () => {
 test("hasScheduleCommand", () => {
   expect(hasScheduleCommand(null)).toBe(false);
   expect(hasScheduleCommand("")).toBe(false);
-  expect(hasScheduleCommand("/schedule")).toBe(false);
+  expect(hasScheduleCommand("/schedule")).toBe(true);
   expect(hasScheduleCommand("/schedule ")).toBe(true);
-  expect(hasScheduleCommand("\n/schedule")).toBe(false);
+  expect(hasScheduleCommand("\n/schedule")).toBe(true);
   expect(hasScheduleCommand("\n/schedule ")).toBe(true);
-  expect(hasScheduleCommand("Something\n/schedule")).toBe(false);
+  expect(hasScheduleCommand("Something\n/schedule")).toBe(true);
   expect(hasScheduleCommand("Something /schedule ")).toBe(false);
   expect(hasScheduleCommand("Something\n/schedule ")).toBe(true);
   expect(hasScheduleCommand("Something /schedule \nelse")).toBe(false);

@@ -2,7 +2,7 @@ import type { SimplePullRequest } from "@octokit/webhooks-types";
 
 export function hasScheduleCommand(text: string | null): boolean {
   if (!text) return false;
-  return /(^|\n)\/schedule /.test(text);
+  return /(^|\n)\/schedule/.test(text);
 }
 
 export function isFork(pullRequest: SimplePullRequest): boolean {
