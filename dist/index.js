@@ -8724,12 +8724,13 @@ exports.deleteComment = exports.updateComment = exports.createComment = exports.
 const github = __importStar(__nccwpck_require__(5438));
 const commentHeader = "**Merge Schedule**";
 const commentFooter = "<!-- Merge Schedule Pull Request Comment -->";
-async function getPreviousComment(octokit, pullRequestNumber) {
+const commentFailFooter = "<!-- Merge Schedule Pull Request Comment Fail -->";
+async function getPreviousComment(octokit, pullRequestNumber, variant = "default") {
     const prComments = await octokit.paginate(octokit.rest.issues.listComments, {
         ...github.context.repo,
         issue_number: pullRequestNumber,
     }, (response) => {
-        return response.data.filter((comment) => comment.body?.includes(commentFooter));
+        return response.data.filter((comment) => comment.body?.includes(variant === "fail" ? commentFailFooter : commentFooter));
     });
     const previousComment = prComments.pop();
     return previousComment;
@@ -8741,13 +8742,14 @@ const statePrefix = {
     warning: ":warning:",
     pending: ":hourglass:",
 };
-function generateBody(body, state) {
+function generateBody(body, state, variant = "default") {
     let newBody = body;
     if (!body.startsWith(commentHeader)) {
         newBody = `${commentHeader}\n${newBody}`;
     }
-    if (!body.endsWith(commentFooter)) {
-        newBody = `${newBody}\n${commentFooter}`;
+    const footer = variant === "fail" ? commentFailFooter : commentFooter;
+    if (!body.endsWith(footer)) {
+        newBody = `${newBody}\n${footer}`;
     }
     return `${statePrefix[state]} ${newBody}`;
 }
@@ -8983,6 +8985,7 @@ async function handleSchedule() {
     }
     const mergeMethod = process.env.INPUT_MERGE_METHOD;
     const requireStatusesSuccess = process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
+    const automergeFailLabel = process.env.INPUT_AUTOMERGE_FAIL_LABEL;
     if (!(0, utils_1.isValidMergeMethod)(mergeMethod)) {
         core.setFailed(`merge_method "${mergeMethod}" is invalid`);
         return;
@@ -8996,6 +8999,7 @@ async function handleSchedule() {
         return response.data
             .filter((pullRequest) => !(0, utils_1.isFork)(pullRequest))
             .filter((pullRequest) => (0, utils_1.hasScheduleCommand)(pullRequest.body))
+            .filter((pullRequest) => pullRequest.labels.every((label) => label.name !== automergeFailLabel))
             .map((pullRequest) => {
             return {
                 number: pullRequest.number,
@@ -9034,8 +9038,22 @@ async function handleSchedule() {
             core.info(`${pullRequest.html_url} merged`);
         }
         catch (error) {
-            const { data } = await (0, comment_1.createComment)(octokit, pullRequest.number, (0, comment_1.generateBody)(`Scheduled merge failed: ${error.message}`, "error"));
-            core.info(`Comment created: ${data.html_url}`);
+            const previousComment = await (0, comment_1.getPreviousComment)(octokit, pullRequest.number, "fail");
+            const commentBody = (0, comment_1.generateBody)(`Scheduled merge failed: ${error.message}\nIn order to let the automerge-automation try again, the label "${automergeFailLabel}" should be removed.`, "error", "fail");
+            if (previousComment) {
+                const { data } = await (0, comment_1.updateComment)(octokit, previousComment.id, commentBody);
+                core.info(`Comment updated: ${data.html_url}`);
+            }
+            else {
+                const { data } = await (0, comment_1.createComment)(octokit, pullRequest.number, commentBody);
+                core.info(`Comment created: ${data.html_url}`);
+            }
+            await octokit.rest.issues.addLabels({
+                ...github.context.repo,
+                issue_number: pullRequest.number,
+                labels: [automergeFailLabel],
+            });
+            core.info(`Label added: "${automergeFailLabel}"`);
             continue;
         }
         const previousComment = await (0, comment_1.getPreviousComment)(octokit, pullRequest.number);
