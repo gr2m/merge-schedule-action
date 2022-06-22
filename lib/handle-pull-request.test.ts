@@ -98,7 +98,7 @@ describe("handlePullRequest", () => {
       ],
       [`Schedule date found: "bad-date"\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
     ]);
     expect(createComment.mock.calls).toHaveLength(1);
@@ -125,7 +125,7 @@ describe("handlePullRequest", () => {
       ],
       [`Schedule date found: "2022-06-08"\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
     ]);
     expect(createComment.mock.calls).toHaveLength(1);
@@ -153,7 +153,7 @@ describe("handlePullRequest", () => {
       ],
       [`Schedule date found: "2022-06-08"\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
     ]);
     expect(createComment.mock.calls).toHaveLength(1);
@@ -180,7 +180,7 @@ describe("handlePullRequest", () => {
       ],
       [`Schedule date found: "2022-06-12"\n`],
       [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-2\n`,
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
       ],
     ]);
     expect(createComment.mock.calls).toHaveLength(1);
@@ -208,7 +208,7 @@ describe("handlePullRequest", () => {
       ],
       [`Schedule date found: "2022-06-12"\n`],
       [
-        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-1\n`,
+        `Comment updated: https://github.com/gr2m/merge-schedule-action/issues/3#issuecomment-31\n`,
       ],
     ]);
     expect(updateComment.mock.calls).toHaveLength(1);
