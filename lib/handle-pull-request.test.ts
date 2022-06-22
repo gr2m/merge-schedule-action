@@ -239,4 +239,30 @@ describe("handlePullRequest", () => {
     ]);
     expect(updateComment.mock.calls).toHaveLength(0);
   });
+
+  test("schedule merge without date", async () => {
+    const mockStdout = mockProcessStdout();
+    const createComment = vi.spyOn(comment, "createComment");
+    const eventPath = generatePullRequestWebhook({
+      body: "Pull request body\n/schedule",
+    });
+    process.env.GITHUB_EVENT_PATH = eventPath;
+
+    await handlePullRequest();
+
+    expect(mockStdout.mock.calls).toEqual([
+      [
+        "Handling pull request opened for https://github.com/gr2m/merge-schedule-action/pull/2\n",
+      ],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
+      ],
+    ]);
+    expect(createComment.mock.calls).toHaveLength(1);
+    expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
+      ":hourglass: **Merge Schedule**
+      Scheduled to be merged the next time the merge action is scheduled via the cron expressions
+      <!-- Merge Schedule Pull Request Comment -->"
+    `);
+  });
 });

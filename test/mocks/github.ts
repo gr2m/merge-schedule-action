@@ -109,6 +109,19 @@ const pullRequests = [
     },
     labels: [],
   },
+  {
+    number: 7,
+    html_url: githubPullRequestUrl(7),
+    state: "open",
+    body: "Simple body not schedule date\n/schedule",
+    head: {
+      sha: "abc123success",
+      repo: {
+        fork: false,
+      },
+    },
+    labels: [],
+  },
 ];
 const pullRequestComments = pullRequests.map((pullRequest) => {
   let body = "";

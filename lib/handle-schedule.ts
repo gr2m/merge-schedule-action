@@ -68,7 +68,9 @@ export default async function handleSchedule(): Promise<void> {
   }
 
   const duePullRequests = pullRequests.filter(
-    (pullRequest) => new Date(pullRequest.scheduledDate) < localeDate()
+    (pullRequest) =>
+      pullRequest.scheduledDate === "" ||
+      new Date(pullRequest.scheduledDate) < localeDate()
   );
 
   core.info(`${duePullRequests.length} due pull requests found`);
@@ -140,10 +142,18 @@ export default async function handleSchedule(): Promise<void> {
       pullRequest.number
     );
 
-    const commentBody = generateBody(
-      `Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`,
-      "success"
-    );
+    let commentBody = "";
+    if (pullRequest.scheduledDate) {
+      commentBody = generateBody(
+        `Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`,
+        "success"
+      );
+    } else {
+      commentBody = generateBody(
+        `Scheduled on next cron expression successfully merged`,
+        "success"
+      );
+    }
 
     if (previousComment) {
       const { data } = await updateComment(
