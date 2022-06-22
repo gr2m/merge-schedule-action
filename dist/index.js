@@ -8905,20 +8905,27 @@ async function handlePullRequest() {
         return;
     }
     const datestring = (0, utils_1.getScheduleDateString)(pullRequest.body);
-    core.info(`Schedule date found: "${datestring}"`);
-    let commentBody = "";
-    if (!(0, utils_1.isValidDate)(datestring)) {
-        commentBody = (0, comment_1.generateBody)(`"${datestring}" is not a valid date`, "error");
+    if (datestring) {
+        core.info(`Schedule date found: "${datestring}"`);
     }
-    else if (new Date(datestring) < (0, locale_date_1.default)()) {
-        let message = `${(0, utils_1.stringifyDate)(datestring)} (UTC) is already in the past`;
-        if (process.env.INPUT_TIME_ZONE !== "UTC") {
-            message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
+    let commentBody = "";
+    if (datestring) {
+        if (!(0, utils_1.isValidDate)(datestring)) {
+            commentBody = (0, comment_1.generateBody)(`"${datestring}" is not a valid date`, "error");
         }
-        commentBody = (0, comment_1.generateBody)(message, "warning");
+        else if (new Date(datestring) < (0, locale_date_1.default)()) {
+            let message = `${(0, utils_1.stringifyDate)(datestring)} (UTC) is already in the past`;
+            if (process.env.INPUT_TIME_ZONE !== "UTC") {
+                message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
+            }
+            commentBody = (0, comment_1.generateBody)(message, "warning");
+        }
+        else {
+            commentBody = (0, comment_1.generateBody)(`Scheduled to be merged on ${(0, utils_1.stringifyDate)(datestring)} (UTC)`, "pending");
+        }
     }
     else {
-        commentBody = (0, comment_1.generateBody)(`Scheduled to be merged on ${(0, utils_1.stringifyDate)(datestring)} (UTC)`, "pending");
+        commentBody = (0, comment_1.generateBody)(`Scheduled to be merged the next time the merge action is scheduled via the cron expressions`, "pending");
     }
     if (previousComment) {
         if (previousComment.body === commentBody) {
@@ -9013,7 +9020,8 @@ async function handleSchedule() {
     if (pullRequests.length === 0) {
         return;
     }
-    const duePullRequests = pullRequests.filter((pullRequest) => new Date(pullRequest.scheduledDate) < (0, locale_date_1.default)());
+    const duePullRequests = pullRequests.filter((pullRequest) => pullRequest.scheduledDate === "" ||
+        new Date(pullRequest.scheduledDate) < (0, locale_date_1.default)());
     core.info(`${duePullRequests.length} due pull requests found`);
     if (duePullRequests.length === 0) {
         return;
@@ -9057,7 +9065,13 @@ async function handleSchedule() {
             continue;
         }
         const previousComment = await (0, comment_1.getPreviousComment)(octokit, pullRequest.number);
-        const commentBody = (0, comment_1.generateBody)(`Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`, "success");
+        let commentBody = "";
+        if (pullRequest.scheduledDate) {
+            commentBody = (0, comment_1.generateBody)(`Scheduled on ${pullRequest.scheduledDate} (UTC) successfully merged`, "success");
+        }
+        else {
+            commentBody = (0, comment_1.generateBody)(`Scheduled on next cron expression successfully merged`, "success");
+        }
         if (previousComment) {
             const { data } = await (0, comment_1.updateComment)(octokit, previousComment.id, commentBody);
             core.info(`Comment updated: ${data.html_url}`);
@@ -9152,7 +9166,7 @@ exports.stringifyDate = exports.isValidDate = exports.isValidMergeMethod = expor
 function hasScheduleCommand(text) {
     if (!text)
         return false;
-    return /(^|\n)\/schedule /.test(text);
+    return /(^|\n)\/schedule/.test(text);
 }
 exports.hasScheduleCommand = hasScheduleCommand;
 function isFork(pullRequest) {
