@@ -1,10 +1,8 @@
 name: release
-
-on:
+"on":
   push:
     branches:
       - master
-
 jobs:
   release:
     name: release
@@ -13,8 +11,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version-file: .nvmrc
+          cache: npm
+          node-version: lts/*
       - run: npm ci
       - run: npm run lint
       - run: npm run test:ci
@@ -27,6 +26,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GR2M_PAT_FOR_SEMANTIC_RELEASE }}
       - if: steps.semantic.outputs.new_release_published == 'true'
-        run: "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:refs/heads/v${{steps.semantic.outputs.new_release_major_version}}"
+        run: >-
+          git push
+          https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          HEAD:refs/heads/v${{steps.semantic.outputs.new_release_major_version}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
