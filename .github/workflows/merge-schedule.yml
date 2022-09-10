@@ -1,17 +1,13 @@
 name: Merge Schedule
-
-on:
+"on":
   pull_request:
     types:
       - opened
       - edited
       - synchronize
   schedule:
-    # https://crontab.guru/every-hour
-    - cron: '0 * * * *'
-  # manual trigger for testing
+    - cron: 0 * * * *
   workflow_dispatch: {}
-
 jobs:
   merge_schedule:
     runs-on: ubuntu-latest
@@ -19,8 +15,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version-file: .nvmrc
+          cache: npm
+          node-version: lts/*
       - run: npm ci
       - if: ${{ github.event_name == 'pull_request' }}
         run: npm run lint
