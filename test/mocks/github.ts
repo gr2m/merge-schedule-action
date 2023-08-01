@@ -122,6 +122,19 @@ const pullRequests = [
     },
     labels: [],
   },
+  {
+    number: 14,
+    html_url: githubPullRequestUrl(14),
+    state: "open",
+    body: "Simple body\n/schedule 2022-06-09",
+    head: {
+      sha: "abc123pending-empty",
+      repo: {
+        fork: false,
+      },
+    },
+    labels: [],
+  },
 ];
 const pullRequestComments = pullRequests.map((pullRequest) => {
   let body = "";
@@ -258,7 +271,7 @@ export const githubHandlers = [
         ctx.status(200),
         ctx.json({
           state: req.params.ref.endsWith("success") ? "success" : "pending",
-          statuses: [],
+          statuses: req.params.ref.endsWith("pending-empty") ? [] : ["pending"],
         })
       );
     }
