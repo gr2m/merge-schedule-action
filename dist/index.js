@@ -9557,6 +9557,8 @@ async function getCommitStatusesStatus(octokit, commitRef) {
         ...github.context.repo,
         ref: commitRef,
     });
+    if (data.statuses === undefined || data.statuses.length === 0)
+        return "success";
     return data.state;
 }
 exports.getCommitStatusesStatus = getCommitStatusesStatus;
