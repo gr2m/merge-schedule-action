@@ -33,8 +33,8 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`6 scheduled pull requests found\n`],
-      [`5 due pull requests found\n`],
+      [`7 scheduled pull requests found\n`],
+      [`6 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
@@ -55,8 +55,12 @@ describe("handleSchedule", () => {
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/7#issuecomment-72\n`,
       ],
+      [`https://github.com/gr2m/merge-schedule-action/pull/14 merged\n`],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/14#issuecomment-142\n`,
+      ],
     ]);
-    expect(createComment.mock.calls).toHaveLength(3);
+    expect(createComment.mock.calls).toHaveLength(4);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":white_check_mark: **Merge Schedule**
       Scheduled on 2022-06-08 (UTC) successfully merged
@@ -97,8 +101,8 @@ describe("handleSchedule", () => {
 
     expect(mockStdout.mock.calls).toEqual([
       [`Loading open pull requests\n`],
-      [`6 scheduled pull requests found\n`],
-      [`5 due pull requests found\n`],
+      [`7 scheduled pull requests found\n`],
+      [`6 due pull requests found\n`],
       [`https://github.com/gr2m/merge-schedule-action/pull/2 merged\n`],
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
@@ -118,8 +122,12 @@ describe("handleSchedule", () => {
       [
         `Comment created: https://github.com/gr2m/merge-schedule-action/issues/7#issuecomment-72\n`,
       ],
+      [`https://github.com/gr2m/merge-schedule-action/pull/14 merged\n`],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/14#issuecomment-142\n`,
+      ],
     ]);
-    expect(createComment.mock.calls).toHaveLength(3);
+    expect(createComment.mock.calls).toHaveLength(4);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":white_check_mark: **Merge Schedule**
       Scheduled on 2022-06-08 (UTC) successfully merged

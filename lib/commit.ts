@@ -32,5 +32,8 @@ export async function getCommitStatusesStatus(
     ref: commitRef,
   });
 
+  if (data.statuses === undefined || data.statuses.length === 0)
+    return "success";
+
   return data.state as "success" | "pending" | "failure";
 }
