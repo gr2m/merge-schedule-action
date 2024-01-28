@@ -19,6 +19,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           node-version: lts/*
+      - run: npm install --no-save @semantic-release/git
       - run: npx semantic-release --debug
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
