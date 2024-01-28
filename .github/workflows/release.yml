@@ -19,15 +19,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           node-version: lts/*
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test:ci
-      - run: npm run build
-      - uses: cycjimmy/semantic-release-action@v3
-        id: semantic
-        with:
-          extra_plugins: |
-            @semantic-release/git
+      - run: npx semantic-release --debug
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
       - if: steps.semantic.outputs.new_release_published == 'true'
