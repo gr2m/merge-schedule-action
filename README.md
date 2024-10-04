@@ -66,6 +66,15 @@ The action sets a pending commit status if the pull request was recognized as be
 
 Note that pull requests from forks are ignored for security reasons.
 
+## Bypassing Repository Rules
+There may be cases when you need to bypass certain branch protection rules (i.e. when a branch requires PR approvals prior to merging). On those cases, we recommend creating a [Github App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) and granting it access. To set that up, do the following:
+
+1. Register a GitHub App and give it `contents:write` and `pull_request:write permissions` and disable webhooks.
+2. Install the app in your repository.
+3. Use https://github.com/actions/create-github-app-token to create an installation access token for your app.
+4. Use that token to authenticate gr2m/merge-schedule-action.
+5. Add the app to the "Allow specified actors to bypass required pull requests" setting.
+
 ## License
 
 [ISC](LICENSE)
