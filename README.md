@@ -66,7 +66,7 @@ The action sets a pending commit status if the pull request was recognized as be
 
 Note that pull requests from forks are ignored for security reasons.
 
-## Bypassing Rules
+## Bypassing Repository Rules
 There may be cases when you need to bypass certain branch protection rules (i.e. when a branch requires PR approvals prior to merging). On those cases, we recommend creating a [Github App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) and granting it access. To set that up, do the following:
 
 1. Register a GitHub App and give it `contents:write` and `pull_request:write permissions` and disable webhooks.
