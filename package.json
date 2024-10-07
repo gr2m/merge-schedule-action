@@ -21,6 +21,7 @@
     "@types/node": "^22.7.4",
     "@types/std-mocks": "^1.0.4",
     "@typescript-eslint/parser": "^5.27.1",
+    "@vercel/ncc": "^0.38.2",
     "eslint": "^8.17.0",
     "eslint-plugin-github": "^4.3.6",
     "mockdate": "^3.0.5",
