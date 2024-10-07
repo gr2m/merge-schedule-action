@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
-    "lib": ["ES2021"],
+    "lib": [
+      "ES2021"
+    ],
     "module": "commonjs",
     "target": "ES2021", // https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping#node-16
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": [
+      "vitest/globals"
+    ],
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
