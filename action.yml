@@ -15,7 +15,7 @@ inputs:
     default: merge
   time_zone:
     description: |-
-     Time zone to use. Default is UTC.
+      Time zone to use. Default is UTC.
     required: false
     default: UTC
   require_statuses_success:
@@ -30,3 +30,6 @@ inputs:
       `automerge-fail`.
     required: false
     default: 'automerge-fail'
+outputs:
+  scheduled_pull_requests:
+    description: "An array of the pull requests that are scheduled to be merged"
