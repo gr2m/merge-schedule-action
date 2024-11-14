@@ -66,6 +66,81 @@ The action sets a pending commit status if the pull request was recognized as be
 
 Note that pull requests from forks are ignored for security reasons.
 
+### Output
+
+Currently scheduled pull requests are output by this action, available for use in later actions.
+
+The output is of the form:
+
+```json
+{
+  "scheduled_pull_requests": [
+    {
+      "number": 1,
+      "scheduledDate": "2022-06-08T00:00:00.000Z",
+      "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
+      "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
+    }
+  ]
+}
+```
+
+Example usage:
+
+```yaml
+name: Merge Schedule
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+  schedule:
+    # https://crontab.guru/every-hour
+    - cron: '0 * * * *'
+
+jobs:
+  merge_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: gr2m/merge-schedule-action@v2
+        id: merge-schedule
+        with:
+          # Merge method to use. Possible values are merge, squash or
+          # rebase. Default is merge.
+          merge_method: squash
+          # Time zone to use. Default is UTC.
+          time_zone: 'America/Los_Angeles'
+          # Require all pull request statuses to be successful before
+          # merging. Default is `false`.
+          require_statuses_success: 'true'
+          # Label to apply to the pull request if the merge fails. Default is
+          # `automerge-fail`.
+          automerge_fail_label: 'merge-schedule-failed'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Process Scheduled PRs
+        uses: actions/github-script@v6
+        # Only run if there are scheduled pull requests
+        if: ${{ fromJson(steps.merge-schedule.outputs.scheduled_pull_requests)[0] != null }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pullRequests = JSON.parse(`${{ steps.merge-schedule.outputs.scheduled_pull_requests }}`);
+            const now = new Date();
+            for (const item of pullRequests) {
+              // Fetch the pull request details
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: item.number,
+              });
+              // Do something with the pull request
+            }
+```
+
 ## Bypassing Repository Rules
 There may be cases when you need to bypass certain branch protection rules (i.e. when a branch requires PR approvals prior to merging). On those cases, we recommend creating a [Github App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) and granting it access. To set that up, do the following:
 
