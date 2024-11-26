@@ -1,7 +1,7 @@
 {
   "name": "merge-schedule-action",
   "private": true,
-  "version": "2.4.4",
+  "version": "2.5.0",
   "description": "GitHub Action to merge pull requests on a scheduled day",
   "repository": "github:gr2m/merge-schedule-action",
   "keywords": [
