@@ -46,11 +46,13 @@ In your pull requests, add a line to the end of the pull request description loo
 /schedule 2022-06-08
 ```
 
-If you need a more precise, timezone-safe setting, you can use an `ISO 8601` date string
+If you need a more precise, timezone-safe setting, you can use an `ISO 8601` date string[^1]
 
 ```
 /schedule 2022-06-08T09:00:00.000Z
 ```
+
+[^1]: The PR is not scheduled at the given specific time, but at the next time that the scheduler is triggered after the scheduled time. Therefore, catching up on any PRs planned that might have been scheduled between schedule runs.
 
 Or if you want to merge the next time the merge action is scheduled via the cron expressions, you can leave the date empty
 
