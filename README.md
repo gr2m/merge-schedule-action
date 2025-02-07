@@ -70,7 +70,7 @@ Note that pull requests from forks are ignored for security reasons.
 
 ### Output
 
-Currently scheduled pull requests are output by this action, available for use in later actions.
+Currently scheduled pull requests, and merged pull requests are output by this action, available for use in later actions.
 
 The output is of the form:
 
@@ -131,6 +131,25 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pullRequests = JSON.parse(`${{ steps.merge-schedule.outputs.scheduled_pull_requests }}`);
+            const now = new Date();
+            for (const item of pullRequests) {
+              // Fetch the pull request details
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: item.number,
+              });
+              // Do something with the pull request
+            }
+
+      - name: Process Merged PRs
+        uses: actions/github-script@v6
+        # Only run if there are merged pull requests
+        if: ${{ fromJson(steps.merge-schedule.outputs.merged_pull_requests)[0] != null }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pullRequests = JSON.parse(`${{ steps.merge-schedule.outputs.merged_pull_requests }}`);
             const now = new Date();
             for (const item of pullRequests) {
               // Fetch the pull request details
