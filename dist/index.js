@@ -32881,6 +32881,7 @@ async function handleSchedule() {
     if (duePullRequests.length === 0) {
         return;
     }
+    const mergedPullRequests = [];
     for await (const pullRequest of duePullRequests) {
         if (requireStatusesSuccess) {
             const [checkRunsStatus, statusesStatus] = await Promise.all([
@@ -32898,6 +32899,7 @@ async function handleSchedule() {
                 pull_number: pullRequest.number,
                 merge_method: mergeMethod,
             });
+            mergedPullRequests.push(pullRequest);
             core.info(`${pullRequest.html_url} merged`);
         }
         catch (error) {
@@ -32935,6 +32937,7 @@ async function handleSchedule() {
         const { data } = await (0, comment_1.createComment)(octokit, pullRequest.number, commentBody);
         core.info(`Comment created: ${data.html_url}`);
     }
+    core.setOutput("merged_pull_requests", mergedPullRequests);
 }
 
 
@@ -32979,6 +32982,7 @@ const handle_schedule_1 = __importDefault(__nccwpck_require__(210));
 main();
 async function main() {
     core.setOutput("scheduled_pull_requests", []);
+    core.setOutput("merged_pull_requests", []);
     try {
         if (github.context.eventName === "pull_request") {
             await (0, handle_pull_request_1.default)();
