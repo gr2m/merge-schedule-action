@@ -70,7 +70,7 @@ Note that pull requests from forks are ignored for security reasons.
 
 ### Output
 
-Currently scheduled pull requests, and merged pull requests are output by this action, available for use in later actions.
+Scheduled pull requests and merged pull requests are output by this action, available for use in later actions.
 
 The output is of the form:
 
