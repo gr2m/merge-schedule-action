@@ -80,6 +80,7 @@ export default async function handleSchedule(): Promise<void> {
     return;
   }
 
+  const mergedPullRequests = [];
   for await (const pullRequest of duePullRequests) {
     if (requireStatusesSuccess) {
       const [checkRunsStatus, statusesStatus] = await Promise.all([
@@ -100,6 +101,7 @@ export default async function handleSchedule(): Promise<void> {
         pull_number: pullRequest.number,
         merge_method: mergeMethod,
       });
+      mergedPullRequests.push(pullRequest);
       core.info(`${pullRequest.html_url} merged`);
     } catch (error) {
       const previousComment = await getPreviousComment(
@@ -173,4 +175,6 @@ export default async function handleSchedule(): Promise<void> {
     );
     core.info(`Comment created: ${data.html_url}`);
   }
+
+  core.setOutput("merged_pull_requests", mergedPullRequests);
 }
