@@ -1,6 +1,6 @@
 import mockDate from "mockdate";
 import timezoneMock from "timezone-mock";
-import { describe, test, expect, vi, afterAll, beforeAll } from "vitest";
+import { describe, test, expect, vi, afterAll, beforeAll, beforeEach } from "vitest";
 import { mockProcessStdout } from "vitest-mock-process";
 import {
   generatePullRequestWebhook,
@@ -14,6 +14,14 @@ timezoneMock.register("UTC");
 mockDate.set("2022-06-10T00:00:00.000Z");
 
 describe("handlePullRequest", () => {
+  const cleanEnv = process.env
+
+  beforeEach(() => {
+    process.env = {
+      ...cleanEnv,
+    };
+  });
+
   beforeAll(() => {
     setupWebhooksFolder();
   });
@@ -262,6 +270,34 @@ describe("handlePullRequest", () => {
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
       ":hourglass: **Merge Schedule**
       Scheduled to be merged the next time the merge action is scheduled via the cron expressions
+      <!-- Merge Schedule Pull Request Comment -->"
+    `);
+  });
+
+  test("schedule merge with custom timezone", async () => {
+    const mockStdout = mockProcessStdout();
+    const createComment = vi.spyOn(comment, "createComment");
+    const eventPath = generatePullRequestWebhook({
+      body: "Pull request body\n/schedule 2022-06-12",
+    });
+    process.env.GITHUB_EVENT_PATH = eventPath;
+    process.env.INPUT_TIME_ZONE = "Europe/Berlin";
+
+    await handlePullRequest();
+
+    expect(mockStdout.mock.calls).toEqual([
+      [
+        "Handling pull request opened for https://github.com/gr2m/merge-schedule-action/pull/2\n",
+      ],
+      [`Schedule date found: "2022-06-12"\n`],
+      [
+        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
+      ],
+    ]);
+    expect(createComment.mock.calls).toHaveLength(1);
+    expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
+      ":hourglass: **Merge Schedule**
+      Scheduled to be merged on 2022-06-12 00:00:00 (Europe/Berlin)
       <!-- Merge Schedule Pull Request Comment -->"
     `);
   });
