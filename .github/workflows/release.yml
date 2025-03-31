@@ -8,27 +8,18 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.GR2M_RELEASER_GITHUB_APP_ID }}
+          private-key: ${{ secrets.GR2M_RELEASER_GITHUB_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version-file: .nvmrc
           cache: npm
           node-version: lts/*
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test:ci
-      - run: npm run build
-      - uses: cycjimmy/semantic-release-action@v3
-        id: semantic
-        with:
-          extra_plugins: |
-            @semantic-release/git
+      - run: npm install --no-save @semantic-release/git semantic-release-plugin-github-breaking-version-tag
+      - run: npx semantic-release --debug
         env:
-          GITHUB_TOKEN: ${{ secrets.GR2M_PAT_FOR_SEMANTIC_RELEASE }}
-      - if: steps.semantic.outputs.new_release_published == 'true'
-        run: >-
-          git push
-          https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          HEAD:refs/heads/v${{steps.semantic.outputs.new_release_major_version}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
