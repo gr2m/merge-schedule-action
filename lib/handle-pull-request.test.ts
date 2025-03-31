@@ -1,6 +1,14 @@
 import mockDate from "mockdate";
 import timezoneMock from "timezone-mock";
-import { describe, test, expect, vi, afterAll, beforeAll, beforeEach } from "vitest";
+import {
+  describe,
+  test,
+  expect,
+  vi,
+  afterAll,
+  beforeAll,
+  beforeEach,
+} from "vitest";
 import { mockProcessStdout } from "vitest-mock-process";
 import {
   generatePullRequestWebhook,
@@ -14,7 +22,7 @@ timezoneMock.register("UTC");
 mockDate.set("2022-06-10T00:00:00.000Z");
 
 describe("handlePullRequest", () => {
-  const cleanEnv = process.env
+  const cleanEnv = process.env;
 
   beforeEach(() => {
     process.env = {
