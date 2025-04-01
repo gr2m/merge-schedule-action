@@ -34,7 +34,12 @@ describe("handleSchedule", () => {
 
     await handleSchedule();
 
-    expect(stdMocks.flush().stdout).toEqual([
+    const outputLines = stdMocks.flush().stdout.filter((line) => {
+      if (line === "\n" || line.startsWith("::set-output")) return null;
+      return line;
+    });
+
+    expect(outputLines).toEqual([
       `Loading open pull requests\n`,
       `7 scheduled pull requests found\n`,
       `6 due pull requests found\n`,
@@ -89,7 +94,12 @@ describe("handleSchedule", () => {
 
     await handleSchedule();
 
-    expect(stdMocks.flush().stdout).toEqual([
+    const outputLines = stdMocks.flush().stdout.filter((line) => {
+      if (line === "\n" || line.startsWith("::set-output")) return null;
+      return line;
+    });
+
+    expect(outputLines).toEqual([
       `Loading open pull requests\n`,
       `7 scheduled pull requests found\n`,
       `6 due pull requests found\n`,

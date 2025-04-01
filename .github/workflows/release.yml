@@ -13,12 +13,11 @@ jobs:
         with:
           app-id: ${{ vars.GR2M_RELEASER_GITHUB_APP_ID }}
           private-key: ${{ secrets.GR2M_RELEASER_GITHUB_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-          node-version: lts/*
       - run: npm install --no-save @semantic-release/git semantic-release-plugin-github-breaking-version-tag
       - run: npx semantic-release --debug
         env:

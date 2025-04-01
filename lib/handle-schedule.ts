@@ -34,7 +34,9 @@ export default async function handleSchedule(): Promise<void> {
     return;
   }
 
-  const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+  const octokit = github.getOctokit(process.env.GITHUB_TOKEN, {
+    request: { fetch },
+  });
 
   core.info("Loading open pull requests");
   const pullRequests = await octokit.paginate(
