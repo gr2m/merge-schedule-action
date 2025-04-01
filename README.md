@@ -167,10 +167,10 @@ There may be cases when you need to bypass certain branch protection rules (i.e.
 
 1. Register a GitHub App and give it `contents:write` and `pull_request:write` permissions and disable webhooks.
    (If the repository is private, additional permissions `checks: read` and `statuses: read` are required.)
-3. Install the app in your repository.
-4. Use https://github.com/actions/create-github-app-token to create an installation access token for your app.
-5. Use that token to authenticate gr2m/merge-schedule-action.
-6. Add the app to the "Allow specified actors to bypass required pull requests" setting.
+2. Install the app in your repository.
+3. Use https://github.com/actions/create-github-app-token to create an installation access token for your app.
+4. Use that token to authenticate gr2m/merge-schedule-action.
+5. Add the app to the "Allow specified actors to bypass required pull requests" setting.
 
 ## License
 
