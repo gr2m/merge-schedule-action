@@ -1,15 +1,6 @@
 import mockDate from "mockdate";
 import timezoneMock from "timezone-mock";
-import {
-  describe,
-  test,
-  expect,
-  vi,
-  afterAll,
-  beforeAll,
-  beforeEach,
-} from "vitest";
-import { mockProcessStdout } from "vitest-mock-process";
+import { describe, test, expect, afterEach, beforeEach, vi } from "vitest";
 import {
   generatePullRequestWebhook,
   cleanupWebhooksFolder,
@@ -22,9 +13,14 @@ import stdMocks from "std-mocks";
 timezoneMock.register("UTC");
 mockDate.set("2022-06-10T00:00:00.000Z");
 
+const cleanEnv = process.env;
+
 beforeEach(() => {
   stdMocks.use();
   setupWebhooksFolder();
+  process.env = {
+    ...cleanEnv,
+  };
 });
 
 afterEach(() => {
@@ -33,14 +29,6 @@ afterEach(() => {
 });
 
 describe("handlePullRequest", () => {
-  const cleanEnv = process.env;
-
-  beforeEach(() => {
-    process.env = {
-      ...cleanEnv,
-    };
-  });
-
   test("closed pull request", async () => {
     const eventPath = generatePullRequestWebhook({ state: "closed" });
     process.env.GITHUB_EVENT_PATH = eventPath;
@@ -241,7 +229,6 @@ describe("handlePullRequest", () => {
   });
 
   test("schedule merge with custom timezone", async () => {
-    const mockStdout = mockProcessStdout();
     const createComment = vi.spyOn(comment, "createComment");
     const eventPath = generatePullRequestWebhook({
       body: "Pull request body\n/schedule 2022-06-12",
@@ -251,14 +238,10 @@ describe("handlePullRequest", () => {
 
     await handlePullRequest();
 
-    expect(mockStdout.mock.calls).toEqual([
-      [
-        "Handling pull request opened for https://github.com/gr2m/merge-schedule-action/pull/2\n",
-      ],
-      [`Schedule date found: "2022-06-12"\n`],
-      [
-        `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
-      ],
+    expect(stdMocks.flush().stdout).toEqual([
+      "Handling pull request opened for https://github.com/gr2m/merge-schedule-action/pull/2\n",
+      `Schedule date found: "2022-06-12"\n`,
+      `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
     ]);
     expect(createComment.mock.calls).toHaveLength(1);
     expect(createComment.mock.calls[0][2]).toMatchInlineSnapshot(`
