@@ -84,7 +84,9 @@ export default async function handlePullRequest(): Promise<void> {
       commentBody = generateBody(message, "warning");
     } else {
       commentBody = generateBody(
-        `Scheduled to be merged on ${stringifyDate(datestring)} (UTC)`,
+        `Scheduled to be merged on ${stringifyDate(datestring)} (${
+          process.env.INPUT_TIME_ZONE
+        })`,
         "pending"
       );
     }
