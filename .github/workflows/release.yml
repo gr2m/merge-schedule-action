@@ -18,6 +18,10 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:ci
+      - run: npm run build
       - run: npm install --no-save @semantic-release/git semantic-release-plugin-github-breaking-version-tag
       - run: npx semantic-release --debug
         env:
