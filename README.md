@@ -70,7 +70,7 @@ Note that pull requests from forks are ignored for security reasons.
 
 ### Output
 
-Scheduled pull requests and merged pull requests are output by this action, available for use in later actions.
+Scheduled, merged, and failed pull requests are output by this action, available for use in later actions.
 
 The output is of the form:
 
@@ -83,7 +83,23 @@ The output is of the form:
       "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
       "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
     }
-  ]
+  ],
+   "merged_pull_requests": [
+      {
+         "number": 2,
+         "scheduledDate": "2022-06-08T00:00:00.000Z",
+         "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
+         "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
+      }
+   ],
+   "failed_pull_requests": [
+      {
+         "number": 3,
+         "scheduledDate": "2022-06-08T00:00:00.000Z",
+         "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
+         "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
+      }
+   ]
 }
 ```
 
@@ -160,6 +176,25 @@ jobs:
               });
               // Do something with the pull request
             }
+             
+      - name: Process Failed PRs
+        uses: actions/github-script@v6
+         # Only run if there are failed pull requests
+        if: ${{ fromJson(steps.merge-schedule.outputs.failed_pull_requests)[0] != null }}
+        with:
+           github-token: ${{ secrets.GITHUB_TOKEN }}
+           script: |
+              const pullRequests = JSON.parse(`${{ steps.merge-schedule.outputs.failed_pull_requests }}`);
+              const now = new Date();
+              for (const item of pullRequests) {
+                // Fetch the pull request details
+                const { data: pullRequest } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: item.number,
+                });
+                // Do something with the pull request
+              }
 ```
 
 ## Bypassing Repository Rules
