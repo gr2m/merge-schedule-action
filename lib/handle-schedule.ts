@@ -83,6 +83,7 @@ export default async function handleSchedule(): Promise<void> {
   }
 
   const mergedPullRequests = [];
+  const failedPullRequests = [];
   for await (const pullRequest of duePullRequests) {
     if (requireStatusesSuccess) {
       const [checkRunsStatus, statusesStatus] = await Promise.all([
@@ -138,6 +139,7 @@ export default async function handleSchedule(): Promise<void> {
         issue_number: pullRequest.number,
         labels: [automergeFailLabel],
       });
+      failedPullRequests.push(pullRequest);
       core.info(`Label added: "${automergeFailLabel}"`);
       continue;
     }
@@ -179,4 +181,5 @@ export default async function handleSchedule(): Promise<void> {
   }
 
   core.setOutput("merged_pull_requests", mergedPullRequests);
+  core.setOutput("failed_pull_requests", failedPullRequests);
 }

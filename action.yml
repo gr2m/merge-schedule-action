@@ -35,3 +35,5 @@ outputs:
     description: "An array of the pull requests that are scheduled to be merged"
   merged_pull_requests:
     description: "An array of the pull requests that were successfully merged"
+  failed_pull_requests:
+    description: "An array of the pull requests that could not be successfully merged"
