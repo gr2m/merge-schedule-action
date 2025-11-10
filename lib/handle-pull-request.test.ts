@@ -53,6 +53,24 @@ describe("handlePullRequest", () => {
     ]);
   });
 
+  test("pull request without head repo is not treated as fork", async () => {
+    const createComment = vi.spyOn(comment, "createComment");
+    const eventPath = generatePullRequestWebhook({
+      body: "Pull request body\n/schedule 2022-06-12",
+      headRepo: null,
+    });
+    process.env.GITHUB_EVENT_PATH = eventPath;
+
+    await handlePullRequest();
+
+    expect(stdMocks.flush().stdout).toEqual([
+      "Handling pull request opened for https://github.com/gr2m/merge-schedule-action/pull/2\n",
+      `Schedule date found: "2022-06-12"\n`,
+      `Comment created: https://github.com/gr2m/merge-schedule-action/issues/2#issuecomment-22\n`,
+    ]);
+    expect(createComment.mock.calls).toHaveLength(1);
+  });
+
   test("no schedule command", async () => {
     const eventPath = generatePullRequestWebhook();
     process.env.GITHUB_EVENT_PATH = eventPath;

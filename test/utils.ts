@@ -17,6 +17,7 @@ type PullRequestWebhookOptions = {
   state?: "open" | "closed";
   body?: string;
   fork?: boolean;
+  headRepo?: { fork?: boolean } | null;
 };
 
 export function generatePullRequestWebhook({
@@ -24,6 +25,7 @@ export function generatePullRequestWebhook({
   state = "open",
   body = "Simple body",
   fork = false,
+  headRepo = undefined,
 }: PullRequestWebhookOptions = {}) {
   // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#webhook-payload-example-33
   const payload = {
@@ -34,7 +36,7 @@ export function generatePullRequestWebhook({
       state,
       body,
       head: {
-        repo: {
+        repo: headRepo ?? {
           fork,
         },
       },
