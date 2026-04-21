@@ -30,9 +30,17 @@ inputs:
       `automerge-fail`.
     required: false
     default: 'automerge-fail'
+  check_mergeability:
+    description: |-
+      Check if the pull request is mergeable before scheduling it. Default is
+      `false`. This incurs an additional API call per PR.
+    required: false
+    default: 'false'
 outputs:
   scheduled_pull_requests:
     description: "An array of the pull requests that are scheduled to be merged"
+  unmergeable_pull_requests:
+    description: "An array of the pull requests that are scheduled to be merged, but are not currently mergeable"
   merged_pull_requests:
     description: "An array of the pull requests that were successfully merged"
   failed_pull_requests:

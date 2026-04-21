@@ -29,6 +29,7 @@ export default async function handleSchedule(): Promise<void> {
   const requireStatusesSuccess =
     process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
   const automergeFailLabel = process.env.INPUT_AUTOMERGE_FAIL_LABEL;
+  const checkMergeability = process.env.INPUT_CHECK_MERGEABILITY === "true";
   if (!isValidMergeMethod(mergeMethod)) {
     core.setFailed(`merge_method "${mergeMethod}" is invalid`);
     return;
@@ -39,31 +40,48 @@ export default async function handleSchedule(): Promise<void> {
   });
 
   core.info("Loading open pull requests");
-  const pullRequests = await octokit.paginate(
-    octokit.rest.pulls.list,
-    {
-      ...github.context.repo,
-      state: "open",
-    },
-    (response) => {
-      return response.data
-        .filter((pullRequest) => !isFork(pullRequest as SimplePullRequest))
-        .filter((pullRequest) => hasScheduleCommand(pullRequest.body))
-        .filter((pullRequest) =>
-          pullRequest.labels.every((label) => label.name !== automergeFailLabel)
-        )
-        .map((pullRequest) => {
-          return {
-            number: pullRequest.number,
-            html_url: pullRequest.html_url,
-            scheduledDate: getScheduleDateString(pullRequest.body),
-            ref: pullRequest.head.sha,
-          };
-        });
-    }
+  const prs = await octokit.paginate(octokit.rest.pulls.list, {
+    ...github.context.repo,
+    state: "open",
+  });
+  const unmergeablePullRequests: {
+    number: number;
+    html_url: string;
+    scheduledDate: string;
+    ref: string;
+  }[] = [];
+  const pullRequests = await Promise.all(
+    prs
+      .filter((pullRequest) => !isFork(pullRequest as SimplePullRequest))
+      .filter((pullRequest) => hasScheduleCommand(pullRequest.body))
+      .filter((pullRequest) =>
+        pullRequest.labels.every((label) => label.name !== automergeFailLabel)
+      )
+      .map(async (pullRequest) => {
+        const pr = {
+          number: pullRequest.number,
+          html_url: pullRequest.html_url,
+          scheduledDate: getScheduleDateString(pullRequest.body),
+          ref: pullRequest.head.sha,
+        };
+        if (checkMergeability) {
+          const prGet = await octokit.rest.pulls.get({
+            ...github.context.repo,
+            pull_number: pullRequest.number,
+          });
+          if (prGet.data.mergeable === false) {
+            core.warning(
+              `${pullRequest.number} is not mergeable. mergeable_state: ${prGet.data.mergeable_state}`
+            );
+            unmergeablePullRequests.push(pr);
+          }
+        }
+        return pr;
+      })
   );
 
   core.setOutput("scheduled_pull_requests", pullRequests);
+  core.setOutput("unmergeable_pull_requests", unmergeablePullRequests);
   core.info(`${pullRequests.length} scheduled pull requests found`);
 
   if (pullRequests.length === 0) {

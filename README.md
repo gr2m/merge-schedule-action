@@ -36,6 +36,9 @@ jobs:
           # Label to apply to the pull request if the merge fails. Default is
           # `automerge-fail`.
           automerge_fail_label: 'merge-schedule-failed'
+          # Check if scheduled PRs are mergeable. Default is `false`.
+          # This incurs an extra API call per PR.
+          check_mergeability: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -83,6 +86,14 @@ The output is of the form:
       "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
       "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
     }
+  ],
+  "unmergeable_pull_requests": [
+     {
+        "number": 1,
+        "scheduledDate": "2022-06-08T00:00:00.000Z",
+        "html_url":"https://github.com/gr2m/merge-schedule-action/pull/108",
+        "ref":"2444141aa0c0369b4e97aaa88af2693ed90a43b8"
+     }
   ],
    "merged_pull_requests": [
       {
@@ -136,6 +147,9 @@ jobs:
           # Label to apply to the pull request if the merge fails. Default is
           # `automerge-fail`.
           automerge_fail_label: 'merge-schedule-failed'
+           # Check if scheduled PRs are mergeable. Default is `false`.
+           # This incurs an extra API call per PR.
+          check_mergeability: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           

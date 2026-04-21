@@ -13009,7 +13009,7 @@ module.exports = {
 
 
 const { parseSetCookie } = __nccwpck_require__(8915)
-const { stringify, getHeadersList } = __nccwpck_require__(3834)
+const { stringify } = __nccwpck_require__(3834)
 const { webidl } = __nccwpck_require__(4222)
 const { Headers } = __nccwpck_require__(6349)
 
@@ -13085,14 +13085,13 @@ function getSetCookies (headers) {
 
   webidl.brandCheck(headers, Headers, { strict: false })
 
-  const cookies = getHeadersList(headers).cookies
+  const cookies = headers.getSetCookie()
 
   if (!cookies) {
     return []
   }
 
-  // In older versions of undici, cookies is a list of name:value.
-  return cookies.map((pair) => parseSetCookie(Array.isArray(pair) ? pair[1] : pair))
+  return cookies.map((pair) => parseSetCookie(pair))
 }
 
 /**
@@ -13520,14 +13519,15 @@ module.exports = {
 /***/ }),
 
 /***/ 3834:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module) => {
 
 "use strict";
 
 
-const assert = __nccwpck_require__(2613)
-const { kHeadersList } = __nccwpck_require__(6443)
-
+/**
+ * @param {string} value
+ * @returns {boolean}
+ */
 function isCTLExcludingHtab (value) {
   if (value.length === 0) {
     return false
@@ -13788,31 +13788,13 @@ function stringify (cookie) {
   return out.join('; ')
 }
 
-let kHeadersListNode
-
-function getHeadersList (headers) {
-  if (headers[kHeadersList]) {
-    return headers[kHeadersList]
-  }
-
-  if (!kHeadersListNode) {
-    kHeadersListNode = Object.getOwnPropertySymbols(headers).find(
-      (symbol) => symbol.description === 'headers list'
-    )
-
-    assert(kHeadersListNode, 'Headers cannot be parsed')
-  }
-
-  const headersList = headers[kHeadersListNode]
-  assert(headersList)
-
-  return headersList
-}
-
 module.exports = {
   isCTLExcludingHtab,
-  stringify,
-  getHeadersList
+  validateCookieName,
+  validateCookiePath,
+  validateCookieValue,
+  toIMFDate,
+  stringify
 }
 
 
@@ -17816,6 +17798,7 @@ const {
   isValidHeaderName,
   isValidHeaderValue
 } = __nccwpck_require__(5523)
+const util = __nccwpck_require__(9023)
 const { webidl } = __nccwpck_require__(4222)
 const assert = __nccwpck_require__(2613)
 
@@ -18369,6 +18352,9 @@ Object.defineProperties(Headers.prototype, {
   [Symbol.toStringTag]: {
     value: 'Headers',
     configurable: true
+  },
+  [util.inspect.custom]: {
+    enumerable: false
   }
 })
 
@@ -27545,6 +27531,20 @@ class Pool extends PoolBase {
       ? { ...options.interceptors }
       : undefined
     this[kFactory] = factory
+
+    this.on('connectionError', (origin, targets, error) => {
+      // If a connection error occurs, we remove the client from the pool,
+      // and emit a connectionError event. They will not be re-used.
+      // Fixes https://github.com/nodejs/undici/issues/3895
+      for (const target of targets) {
+        // Do not use kRemoveClient here, as it will close the client,
+        // but the client cannot be closed in this state.
+        const idx = this[kClients].indexOf(target)
+        if (idx !== -1) {
+          this[kClients].splice(idx, 1)
+        }
+      }
+    })
   }
 
   [kGetDispatcher] () {
@@ -30220,6 +30220,7 @@ async function handleSchedule() {
     const mergeMethod = process.env.INPUT_MERGE_METHOD;
     const requireStatusesSuccess = process.env.INPUT_REQUIRE_STATUSES_SUCCESS === "true";
     const automergeFailLabel = process.env.INPUT_AUTOMERGE_FAIL_LABEL;
+    const checkMergeability = process.env.INPUT_CHECK_MERGEABILITY === "true";
     if (!(0, utils_1.isValidMergeMethod)(mergeMethod)) {
         core.setFailed(`merge_method "${mergeMethod}" is invalid`);
         return;
@@ -30228,24 +30229,36 @@ async function handleSchedule() {
         request: { fetch },
     });
     core.info("Loading open pull requests");
-    const pullRequests = await octokit.paginate(octokit.rest.pulls.list, {
+    const prs = await octokit.paginate(octokit.rest.pulls.list, {
         ...github.context.repo,
         state: "open",
-    }, (response) => {
-        return response.data
-            .filter((pullRequest) => !(0, utils_1.isFork)(pullRequest))
-            .filter((pullRequest) => (0, utils_1.hasScheduleCommand)(pullRequest.body))
-            .filter((pullRequest) => pullRequest.labels.every((label) => label.name !== automergeFailLabel))
-            .map((pullRequest) => {
-            return {
-                number: pullRequest.number,
-                html_url: pullRequest.html_url,
-                scheduledDate: (0, utils_1.getScheduleDateString)(pullRequest.body),
-                ref: pullRequest.head.sha,
-            };
-        });
     });
+    const unmergeablePullRequests = [];
+    const pullRequests = await Promise.all(prs
+        .filter((pullRequest) => !(0, utils_1.isFork)(pullRequest))
+        .filter((pullRequest) => (0, utils_1.hasScheduleCommand)(pullRequest.body))
+        .filter((pullRequest) => pullRequest.labels.every((label) => label.name !== automergeFailLabel))
+        .map(async (pullRequest) => {
+        const pr = {
+            number: pullRequest.number,
+            html_url: pullRequest.html_url,
+            scheduledDate: (0, utils_1.getScheduleDateString)(pullRequest.body),
+            ref: pullRequest.head.sha,
+        };
+        if (checkMergeability) {
+            const prGet = await octokit.rest.pulls.get({
+                ...github.context.repo,
+                pull_number: pullRequest.number,
+            });
+            if (prGet.data.mergeable === false) {
+                core.warning(`${pullRequest.number} is not mergeable. mergeable_state: ${prGet.data.mergeable_state}`);
+                unmergeablePullRequests.push(pr);
+            }
+        }
+        return pr;
+    }));
     core.setOutput("scheduled_pull_requests", pullRequests);
+    core.setOutput("unmergeable_pull_requests", unmergeablePullRequests);
     core.info(`${pullRequests.length} scheduled pull requests found`);
     if (pullRequests.length === 0) {
         return;
@@ -30360,6 +30373,7 @@ const handle_schedule_1 = __importDefault(__nccwpck_require__(210));
 main();
 async function main() {
     core.setOutput("scheduled_pull_requests", []);
+    core.setOutput("unmergeable_pull_requests", []);
     core.setOutput("merged_pull_requests", []);
     core.setOutput("failed_pull_requests", []);
     try {
