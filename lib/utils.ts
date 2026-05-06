@@ -6,7 +6,7 @@ export function hasScheduleCommand(text: string | null): boolean {
 }
 
 export function isFork(pullRequest: SimplePullRequest): boolean {
-  return pullRequest.head.repo.fork;
+  return Boolean(pullRequest.head?.repo?.fork);
 }
 
 export function getScheduleDateString(text: string | null): string {
