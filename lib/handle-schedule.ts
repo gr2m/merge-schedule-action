@@ -11,6 +11,7 @@ import localeDate from "./locale-date";
 import { getCommitChecksRunsStatus, getCommitStatusesStatus } from "./commit";
 import {
   getScheduleDateString,
+  hasExplicitTimeZone,
   hasScheduleCommand,
   isFork,
   isValidMergeMethod,
@@ -70,11 +71,13 @@ export default async function handleSchedule(): Promise<void> {
     return;
   }
 
-  const duePullRequests = pullRequests.filter(
-    (pullRequest) =>
-      pullRequest.scheduledDate === "" ||
-      new Date(pullRequest.scheduledDate) < localeDate()
-  );
+  const duePullRequests = pullRequests.filter((pullRequest) => {
+    if (pullRequest.scheduledDate === "") return true;
+    const now = hasExplicitTimeZone(pullRequest.scheduledDate)
+      ? new Date()
+      : localeDate();
+    return new Date(pullRequest.scheduledDate) < now;
+  });
 
   core.info(`${duePullRequests.length} due pull requests found`);
 

@@ -33,3 +33,10 @@ export function stringifyDate(datestring: string): string {
   const [date, time] = dateTimeString.split("T");
   return `${date} ${time}`;
 }
+
+// True if the string ends with `Z` or `±HH:MM`/`±HHMM`. Such strings are
+// absolute instants and must be compared against the real current time —
+// not the wall-clock value localeDate() returns for the configured TZ.
+export function hasExplicitTimeZone(datestring: string): boolean {
+  return /([zZ]|[+-]\d{2}:?\d{2})$/.test(datestring);
+}

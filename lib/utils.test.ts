@@ -2,6 +2,7 @@ import timezoneMock from "timezone-mock";
 import { test, expect } from "vitest";
 import {
   getScheduleDateString,
+  hasExplicitTimeZone,
   hasScheduleCommand,
   isValidMergeMethod,
   isValidDate,
@@ -53,4 +54,15 @@ test("stringifyDate", () => {
   expect(stringifyDate("2022-06-08")).toBe("2022-06-08 00:00:00");
   expect(stringifyDate("2022-06-08T09:00:00")).toBe("2022-06-08 09:00:00");
   expect(stringifyDate("2022-06-08T15:00:00Z")).toBe("2022-06-08 15:00:00");
+});
+
+test("hasExplicitTimeZone", () => {
+  expect(hasExplicitTimeZone("2022-06-08")).toBe(false);
+  expect(hasExplicitTimeZone("2022-06-08T09:00:00")).toBe(false);
+  expect(hasExplicitTimeZone("2022-06-08T15:00:00Z")).toBe(true);
+  expect(hasExplicitTimeZone("2022-06-08T15:00:00z")).toBe(true);
+  expect(hasExplicitTimeZone("2022-06-08T15:00:00.000Z")).toBe(true);
+  expect(hasExplicitTimeZone("2022-06-08T12:00:00-04:00")).toBe(true);
+  expect(hasExplicitTimeZone("2022-06-08T12:00:00+05:30")).toBe(true);
+  expect(hasExplicitTimeZone("2022-06-08T12:00:00-0400")).toBe(true);
 });

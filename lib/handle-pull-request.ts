@@ -8,6 +8,7 @@ import type {
 } from "@octokit/webhooks-types";
 import {
   getScheduleDateString,
+  hasExplicitTimeZone,
   hasScheduleCommand,
   isFork,
   isValidDate,
@@ -76,7 +77,10 @@ export default async function handlePullRequest(): Promise<void> {
         `"${datestring}" is not a valid date`,
         "error"
       );
-    } else if (new Date(datestring) < localeDate()) {
+    } else if (
+      new Date(datestring) <
+      (hasExplicitTimeZone(datestring) ? new Date() : localeDate())
+    ) {
       let message = `${stringifyDate(datestring)} (UTC) is already in the past`;
       if (process.env.INPUT_TIME_ZONE !== "UTC") {
         message = `${message} on ${process.env.INPUT_TIME_ZONE} time zone`;
