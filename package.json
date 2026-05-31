@@ -95,6 +95,6 @@
   },
   "prettier": {},
   "engines": {
-    "node": ">=16.15"
+    "node": ">=20"
   }
 }
