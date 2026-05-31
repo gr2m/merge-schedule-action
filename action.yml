@@ -4,7 +4,7 @@ branding:
   icon: "git-merge"
   color: purple
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
 inputs:
   merge_method:
